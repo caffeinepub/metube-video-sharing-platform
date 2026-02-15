@@ -1,38 +1,68 @@
 {
   "kind": "build_request",
-  "title": "Rename companion experience from YouTubeMe.co to YouTubeMe.xyz across the UI",
+  "title": "Allow AI generation prompts that contain adult/sexual words",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-48",
-      "text": "Update all companion-experience labels, user-facing copy, and external links in the frontend from “YouTubeMe.co” to “YouTubeMe.xyz”, including the Discover page card, the “What’s New” bullet, the footer CTA label, and the YouTubeMe informational page content.",
+      "id": "REQ-49",
+      "text": "Remove the current keyword-based content policy block that prevents AI video generation when the user’s prompt contains adult/sexual terms (e.g., the word \"sex\"), so that videos can still be generated.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "YouTubeMe.co charge to YouTubeMe.xyz"
+          "Change that when I adult word if I seea sex the it well generated videos and images"
         ]
       },
       "acceptanceCriteria": [
-        "On the Discover page, the companion card title and button text say “YouTubeMe.xyz” (not “YouTubeMe.co”).",
-        "On the Discover page, the companion card opens https://YouTubeMe.xyz (not https://YouTubeMe.co).",
-        "In the Discover page “What’s New” list, any mention of “YouTubeMe.co” is replaced with “YouTubeMe.xyz”.",
-        "In the footer, the optional CTA button label reads “YouTubeMe.xyz”.",
-        "On the YouTubeMe informational page, the heading and all body copy refer to “YouTubeMe.xyz” and the external link points to https://YouTubeMe.xyz.",
-        "No remaining user-visible text in the frontend references “YouTubeMe.co”."
+        "In MeTube AI Studios > Video Generation, entering a prompt that contains the word \"sex\" does not block generation and does not show the current prohibited-content error toast.",
+        "Video generation proceeds normally (subject to authentication and remaining generation time limits) even if the prompt contains previously-blocked keywords."
+      ]
+    },
+    {
+      "id": "REQ-50",
+      "text": "Update any AI Studio user-facing content policy UI/copy that currently states porn/explicit content is prohibited and will be rejected, so that it no longer claims generation will be blocked by keyword detection.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Change that when I adult word if I seea sex the it well generated videos and images"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Video Generation card no longer displays messaging that says prompts will be rejected due to banned keywords.",
+        "All updated user-facing text is in English."
+      ]
+    },
+    {
+      "id": "REQ-51",
+      "text": "Update the local content policy utility so it no longer represents a hard-blocking rule for adult/sexual keywords (e.g., do not expose or use a function that treats \"sex\" and similar words as prohibited terms for AI generation).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Change that when I adult word if I seea sex the it well generated videos and images"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The app no longer uses the existing blocked-keywords list to prevent AI generation based on adult/sexual terms.",
+        "No runtime errors occur from removing/adjusting the content policy helper usage in MeTube AI Studios."
       ]
     }
   ],
   "constraints": [
-    "Keep all user-facing text in English.",
-    "Do not modify files under frontend/src/components/ui or any other frontend immutablePaths listed in SYSTEM_CONTEXT."
+    "Do not modify files under frontend/src/components/ui (Shadcn UI components are read-only).",
+    "Keep AI image/video generation fully client-side (no external AI services)."
   ],
   "nonGoals": [
-    "Do not implement domain/DNS changes, redirects, hosting, or deployment for YouTubeMe.xyz.",
-    "Do not add new backend APIs or modify backend state/schema for this rename.",
-    "Do not change MeTube/metube.xyz branding beyond updating the companion-domain references."
+    "Adding a kids-only mode or age-gating flow.",
+    "Adding external moderation services or third-party content filtering APIs.",
+    "Changing AI generation tier limits, Stripe payment flows, or authentication requirements."
   ],
   "imageRequirements": {
     "required": [],

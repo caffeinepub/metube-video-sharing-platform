@@ -1,13 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Rename the companion experience references from “YouTubeMe.co” to “YouTubeMe.xyz” across all user-visible frontend UI copy and links.
+**Goal:** Allow AI video generation prompts containing adult/sexual terms by removing the current keyword-based blocking behavior and updating related UI messaging.
 
 **Planned changes:**
-- Update the Discover page companion card title, button text, and outbound URL to use “YouTubeMe.xyz” and https://YouTubeMe.xyz.
-- Replace any “YouTubeMe.co” mention in the Discover page “What’s New” list with “YouTubeMe.xyz”.
-- Update the footer optional CTA button label to read “YouTubeMe.xyz”.
-- Update the YouTubeMe informational page heading, body copy, and external link to reference “YouTubeMe.xyz” and https://YouTubeMe.xyz.
-- Ensure no remaining user-visible frontend text references “YouTubeMe.co”.
+- Remove the frontend prompt keyword block that prevents AI video generation when adult/sexual terms (e.g., “sex”) are present.
+- Update AI Studio (Video Generation) user-facing policy UI/copy so it no longer claims prompts will be rejected due to banned keywords; ensure all revised text is in English.
+- Adjust the local content policy utility so adult/sexual keywords are no longer treated/exposed as hard-prohibited terms for AI generation, and ensure no runtime errors in MeTube AI Studios.
 
-**User-visible outcome:** Anywhere the app previously displayed or linked to “YouTubeMe.co” now shows “YouTubeMe.xyz” and links to https://YouTubeMe.xyz.
+**User-visible outcome:** In MeTube AI Studios > Video Generation, users can enter prompts containing previously-blocked adult/sexual words (e.g., “sex”) and generation proceeds normally (subject to login and remaining generation time limits), without showing the prohibited-content error toast.

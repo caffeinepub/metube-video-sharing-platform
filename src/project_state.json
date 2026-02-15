@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 21,
+  "projectStateVersion": 23,
   "summary": "Expand MeTube/\"MeTube AI Studios\" to include AI-powered image generation and image-based promo creation using user-uploaded pictures, and consider launching/connecting a companion site/domain \"YouTubeMe.xyz\" (renamed from YouTubeMe.co) that is YouTube-like and connected to MeTube.",
   "architectural_notes": [
     "Introduce a payment-gated download flow (price point: $0.63) that restricts file downloads to users with a confirmed payment/entitlement.",
@@ -344,6 +344,30 @@
         "REQ-48"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-remove-the-current-keyword-based-content-policy-block-that-prevents-ai-video-generation-when-the-user-s-prompt-contains-adult-sexual-terms-e-g-the-word-sex-so-that-videos-can-still-be-generated",
+      "title": "Remove the current keyword-based content policy block that prevents AI video generation when the user’s prompt contains adult/sexual terms (e.g., the word \"sex\"), so that videos can still be generated.",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-any-ai-studio-user-facing-content-policy-ui-copy-that-currently-states-porn-explicit-content-is-prohibited-and-will-be-rejected-so-that-it-no-longer-claims-generation-will-be-blocked-by-keyword-detection",
+      "title": "Update any AI Studio user-facing content policy UI/copy that currently states porn/explicit content is prohibited and will be rejected, so that it no longer claims generation will be blocked by keyword detection.",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-local-content-policy-utility-so-it-no-longer-represents-a-hard-blocking-rule-for-adult-sexual-keywords-e-g-do-not-expose-or-use-a-function-that-treats-sex-and-similar-words-as-prohibited-terms-for-ai-generation",
+      "title": "Update the local content policy utility so it no longer represents a hard-blocking rule for adult/sexual keywords (e.g., do not expose or use a function that treats \"sex\" and similar words as prohibited terms for AI generation).",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -540,6 +564,12 @@
       "summary": "Change the planned companion domain from YouTubeMe.co to YouTubeMe.xyz (update all related UI text, links, and informational page content accordingly).",
       "reqIds": [],
       "status": "pending"
+    },
+    {
+      "id": "AR-43",
+      "summary": "Allow AI image/video generation even when prompts contain adult/sexual words (remove/relax the current pornographic-content keyword block).",
+      "reqIds": [],
+      "status": "blocked"
     }
   ],
   "gameProjectType": "none",

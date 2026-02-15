@@ -12,7 +12,6 @@ import { Sparkles, Clock, Zap, AlertCircle, Crown, Image } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { generateVideo, type GeneratedVideo } from '../utils/aiVideoGenerator';
-import { containsBlockedContent, getContentPolicyMessage } from '../utils/contentPolicy';
 import { fetchImageFromUrl } from '../utils/fetchImageFromUrl';
 import ImagesPicturesSection from '../components/ai-studio/ImagesPicturesSection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -66,11 +65,6 @@ export default function AiStudioPage({ onNavigateToUpload }: AiStudioPageProps) 
   const handleGenerate = async () => {
     if (!quote.trim()) {
       toast.error('Please enter a quote');
-      return;
-    }
-
-    if (containsBlockedContent(quote)) {
-      toast.error(getContentPolicyMessage());
       return;
     }
 
@@ -251,8 +245,7 @@ export default function AiStudioPage({ onNavigateToUpload }: AiStudioPageProps) 
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Content Policy:</strong> Pornographic and explicit content is strictly prohibited.
-                  Videos containing banned keywords will be rejected.
+                  <strong>Content Policy:</strong> Please use AI generation features responsibly and in accordance with community guidelines.
                 </AlertDescription>
               </Alert>
 

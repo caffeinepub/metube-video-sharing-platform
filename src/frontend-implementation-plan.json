@@ -1,34 +1,60 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Rename YouTubeMe.co to YouTubeMe.xyz across companion experience UI",
+  "title": "Remove adult-keyword blocking in MeTube AI Studios prompts",
   "requirements": [
     {
-      "id": "REQ-48",
-      "summary": "Replace all user-facing “YouTubeMe.co” labels and links with “YouTubeMe.xyz” across Discover, footer CTA, and the YouTubeMe informational page.",
+      "id": "REQ-49",
+      "summary": "Remove keyword-based blocking so prompts containing adult/sexual terms (e.g., \"sex\") do not prevent AI video generation.",
       "acceptanceCriteria": [
-        "On the Discover page, the companion card title and button text say “YouTubeMe.xyz” (not “YouTubeMe.co”).",
-        "On the Discover page, the companion card opens https://YouTubeMe.xyz (not https://YouTubeMe.co).",
-        "In the Discover page “What’s New” list, any mention of “YouTubeMe.co” is replaced with “YouTubeMe.xyz”.",
-        "In the footer, the optional CTA button label reads “YouTubeMe.xyz”.",
-        "On the YouTubeMe informational page, the heading and all body copy refer to “YouTubeMe.xyz” and the external link points to https://YouTubeMe.xyz.",
-        "No remaining user-visible text in the frontend references “YouTubeMe.co”."
+        "In MeTube AI Studios > Video Generation, entering a prompt that contains the word \"sex\" does not block generation and does not show the current prohibited-content error toast.",
+        "Video generation proceeds normally (subject to authentication and remaining generation time limits) even if the prompt contains previously-blocked keywords."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/DiscoverPage.tsx",
+          "path": "frontend/src/pages/AiStudioPage.tsx",
           "operation": "modify",
-          "description": "Update the companion-experience card title and button label from “YouTubeMe.co” to “YouTubeMe.xyz”; update the click handler to open https://YouTubeMe.xyz; update the “What’s New” bullet text to reference “YouTubeMe.xyz”."
+          "description": "Remove the pre-generation hard stop that calls containsBlockedContent(quote) and shows the prohibited-content toast; generation should proceed normally while keeping existing authentication and remaining-time checks intact."
+        }
+      ]
+    },
+    {
+      "id": "REQ-50",
+      "summary": "Update AI Studio content policy UI/copy so it no longer claims generation will be blocked by keyword detection for porn/explicit terms.",
+      "acceptanceCriteria": [
+        "The Video Generation card no longer displays messaging that says prompts will be rejected due to banned keywords.",
+        "All updated user-facing text is in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AiStudioPage.tsx",
+          "operation": "modify",
+          "description": "Update the Video Generation card's Content Policy alert copy to remove statements about banned keywords being rejected/blocked; keep copy in English and align it with the updated non-keyword-blocking behavior."
         },
         {
-          "path": "frontend/src/components/Footer.tsx",
+          "path": "frontend/src/utils/contentPolicy.ts",
           "operation": "modify",
-          "description": "Update the optional footer CTA button label from “YouTubeMe.co” to “YouTubeMe.xyz” while keeping the existing navigation behavior unchanged."
+          "description": "Update any user-facing message helpers (e.g., getContentPolicyMessage/getContentPolicyNote) so they do not claim prompts are rejected due to prohibited terms/keyword detection."
+        }
+      ]
+    },
+    {
+      "id": "REQ-51",
+      "summary": "Adjust the local content policy utility so it no longer implements or exposes a hard-blocking adult/sexual keyword rule for AI generation.",
+      "acceptanceCriteria": [
+        "The app no longer uses the existing blocked-keywords list to prevent AI generation based on adult/sexual terms.",
+        "No runtime errors occur from removing/adjusting the content policy helper usage in MeTube AI Studios."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/contentPolicy.ts",
+          "operation": "modify",
+          "description": "Remove or neutralize the adult/sexual BLOCKED_KEYWORDS-based detection (e.g., eliminate the list and ensure containsBlockedContent no longer treats words like \"sex\" as prohibited) while preserving a safe, non-breaking API shape for any remaining imports."
         },
         {
-          "path": "frontend/src/pages/YouTubeMePage.tsx",
+          "path": "frontend/src/pages/AiStudioPage.tsx",
           "operation": "modify",
-          "description": "Update the page heading and all body copy to refer to “YouTubeMe.xyz” (not “YouTubeMe.co”), including section titles and CTA text; update the external link href to https://YouTubeMe.xyz and ensure the CTA button text also reads “YouTubeMe.xyz”."
+          "description": "Remove now-unneeded imports/usages of contentPolicy blocking helpers (containsBlockedContent/getContentPolicyMessage) so there are no runtime or build errors after the utility is adjusted."
         }
       ]
     }

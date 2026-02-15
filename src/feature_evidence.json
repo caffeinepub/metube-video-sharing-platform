@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-all-companion-experience-labels-user-facing-copy-and-external-links-in-the-frontend-from-youtubeme-co-to-youtubeme-xyz-including-the-discover-page-card-the-what-s-new-bullet-the-footer-cta-label-and-the-youtubeme-informational-page-content",
-      "featureTitle": "Update all companion-experience labels, user-facing copy, and external links in the frontend from “YouTubeMe.co” to “YouTubeMe.xyz”, including the Discover page card, the “What’s New” bullet, the footer CTA label, and the YouTubeMe informational page content.",
+      "featureId": "feature-remove-the-current-keyword-based-content-policy-block-that-prevents-ai-video-generation-when-the-user-s-prompt-contains-adult-sexual-terms-e-g-the-word-sex-so-that-videos-can-still-be-generated",
+      "featureTitle": "Remove the current keyword-based content policy block that prevents AI video generation when the user’s prompt contains adult/sexual terms (e.g., the word \"sex\"), so that videos can still be generated.",
       "files": [
-        "frontend/src/components/Footer.tsx",
-        "frontend/src/pages/DiscoverPage.tsx",
-        "frontend/src/pages/YouTubeMePage.tsx"
+        "frontend/src/pages/AiStudioPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -21,7 +19,53 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-48"
+        "REQ-49"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-any-ai-studio-user-facing-content-policy-ui-copy-that-currently-states-porn-explicit-content-is-prohibited-and-will-be-rejected-so-that-it-no-longer-claims-generation-will-be-blocked-by-keyword-detection",
+      "featureTitle": "Update any AI Studio user-facing content policy UI/copy that currently states porn/explicit content is prohibited and will be rejected, so that it no longer claims generation will be blocked by keyword detection.",
+      "files": [
+        "frontend/src/pages/AiStudioPage.tsx",
+        "frontend/src/utils/contentPolicy.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-50"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-local-content-policy-utility-so-it-no-longer-represents-a-hard-blocking-rule-for-adult-sexual-keywords-e-g-do-not-expose-or-use-a-function-that-treats-sex-and-similar-words-as-prohibited-terms-for-ai-generation",
+      "featureTitle": "Update the local content policy utility so it no longer represents a hard-blocking rule for adult/sexual keywords (e.g., do not expose or use a function that treats \"sex\" and similar words as prohibited terms for AI generation).",
+      "files": [
+        "frontend/src/pages/AiStudioPage.tsx",
+        "frontend/src/utils/contentPolicy.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-51"
       ],
       "confidence": "high"
     }

@@ -1,28 +1,50 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T21:49:16.559Z",
+  "generatedAt": "2026-02-15T22:07:35.913Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-48",
-        "summary": "Update all companion-experience labels, user-facing copy, and external links in the frontend from “YouTubeMe.co” to “YouTubeMe.xyz”, including the Discover page card, the “What’s New” bullet, the footer CTA label, and the YouTubeMe informational page content.",
+        "id": "REQ-49",
+        "summary": "Remove the current keyword-based content policy block that prevents AI video generation when the user’s prompt contains adult/sexual terms (e.g., the word \"sex\"), so that videos can still be generated.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/DiscoverPage.tsx",
-          "frontend/src/components/Footer.tsx",
-          "frontend/src/pages/YouTubeMePage.tsx"
+          "frontend/src/pages/AiStudioPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/DiscoverPage.tsx",
-          "frontend/src/components/Footer.tsx",
-          "frontend/src/pages/YouTubeMePage.tsx"
+          "frontend/src/pages/AiStudioPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-50",
+        "summary": "Update any AI Studio user-facing content policy UI/copy that currently states porn/explicit content is prohibited and will be rejected, so that it no longer claims generation will be blocked by keyword detection.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/AiStudioPage.tsx",
+          "frontend/src/utils/contentPolicy.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/AiStudioPage.tsx",
+          "frontend/src/utils/contentPolicy.ts"
+        ]
+      },
+      {
+        "id": "REQ-51",
+        "summary": "Update the local content policy utility so it no longer represents a hard-blocking rule for adult/sexual keywords (e.g., do not expose or use a function that treats \"sex\" and similar words as prohibited terms for AI generation).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/contentPolicy.ts",
+          "frontend/src/pages/AiStudioPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/contentPolicy.ts",
+          "frontend/src/pages/AiStudioPage.tsx"
         ]
       }
     ]
@@ -32,9 +54,8 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/Footer.tsx",
-    "frontend/src/pages/DiscoverPage.tsx",
-    "frontend/src/pages/YouTubeMePage.tsx",
+    "frontend/src/pages/AiStudioPage.tsx",
+    "frontend/src/utils/contentPolicy.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

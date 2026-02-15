@@ -1,58 +1,49 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T21:49:16.556Z",
-  "summary": "REQ-48 is partially implemented: the Discover page companion card appears updated to “YouTubeMe.xyz” and opens https://YouTubeMe.xyz, and the Footer CTA label is updated. However, due to truncation and missing evidence, updates to the Discover “What’s New” list and the YouTubeMe informational page external link/copy cannot be fully verified, nor can we confirm there are zero remaining “YouTubeMe.co” references across the frontend. Additionally, two non-requested metadata/state files were modified.",
+  "generatedAt": "2026-02-15T22:07:35.909Z",
+  "summary": "Diff clearly updates the local content policy utility to no longer block on keywords, but the provided AiStudioPage diff is truncated, so it’s not possible to confirm that video generation no longer triggers the prohibited-content toast or that all related UI/copy was updated. Two modified meta/state files appear unrelated to the requested changes.",
   "missing_requirements": [
     {
-      "id": "REQ-48",
-      "requirement": "In the Discover page “What’s New” list, any mention of “YouTubeMe.co” is replaced with “YouTubeMe.xyz”.",
-      "reason": "The provided DiscoverPage diff is truncated before any “What’s New” section; no evidence shows the list exists or was updated.",
+      "id": "REQ-49",
+      "requirement": "Remove the keyword-based content policy block that prevents AI video generation when prompts contain adult/sexual terms (e.g., \"sex\"), so generation proceeds normally and no prohibited-content toast is shown.",
+      "reason": "The diff shows contentPolicy utilities now always return false, but the AiStudioPage.tsx changes are truncated and do not show removal of any callsites (e.g., containsBlockedContent checks) or removal of the prohibited-content error toast in the video generation flow.",
       "evidence": [
-        "frontend/src/pages/DiscoverPage.tsx (truncated)"
+        "frontend/src/pages/AiStudioPage.tsx (truncated)",
+        "frontend/src/utils/contentPolicy.ts"
       ]
     },
     {
-      "id": "REQ-48",
-      "requirement": "On the YouTubeMe informational page, the heading and all body copy refer to “YouTubeMe.xyz” and the external link points to https://YouTubeMe.xyz.",
-      "reason": "The YouTubeMePage diff is truncated and does not show the external link (or its href), and not all body copy is visible to confirm every reference was updated.",
+      "id": "REQ-50",
+      "requirement": "Update AI Studio user-facing content policy UI/copy so it no longer claims porn/explicit content prompts will be rejected/blocked by keyword detection (English only).",
+      "reason": "No explicit UI/copy changes are visible in the provided truncated AiStudioPage.tsx snippet, and contentPolicy.ts only provides generic messages without showing where/if existing prohibitive wording in the Video Generation card was removed.",
       "evidence": [
-        "frontend/src/pages/YouTubeMePage.tsx (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-48",
-      "requirement": "No remaining user-visible text in the frontend references “YouTubeMe.co”.",
-      "reason": "The diff only shows snippets of a few files; there is insufficient evidence to conclude the entire frontend has no remaining “YouTubeMe.co” references.",
-      "evidence": [
-        "frontend/src/pages/DiscoverPage.tsx (truncated)",
-        "frontend/src/pages/YouTubeMePage.tsx (truncated)",
-        "frontend/src/components/Footer.tsx"
+        "frontend/src/pages/AiStudioPage.tsx (truncated)",
+        "frontend/src/utils/contentPolicy.ts"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Updated/maintained repository metadata summaries file.",
-      "reason": "BuildRequest only asks for UI text/link rename in the frontend; modifying summary/metadata files is not requested.",
+      "description": "Updated/added broad frontend file summaries content.",
+      "reason": "Modifying a repository-wide summary file is not requested by REQ-49/50/51 and is not necessary to remove keyword blocking or update AI Studio copy.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
     },
     {
-      "description": "Updated project state tracking file with rename summary mention.",
-      "reason": "BuildRequest is limited to UI copy/link updates and explicitly avoids broader changes; editing project_state.json is not requested.",
+      "description": "Updated project_state.json project summary/state unrelated to content-policy keyword blocking.",
+      "reason": "Changing project state metadata is not part of the requested frontend-only content-policy adjustments.",
       "evidence": [
         "project_state.json"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.55,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/Footer.tsx",
-    "frontend/src/pages/DiscoverPage.tsx",
-    "frontend/src/pages/YouTubeMePage.tsx",
+    "frontend/src/pages/AiStudioPage.tsx",
+    "frontend/src/utils/contentPolicy.ts",
     "project_state.json"
   ]
 }
