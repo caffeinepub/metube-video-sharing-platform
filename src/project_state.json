@@ -1,0 +1,535 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 19,
+  "summary": "Expand MeTube/\"MeTube AI Studios\" to include AI-powered image generation and image-based promo creation using user-uploaded pictures, and consider launching/connecting a companion site/domain \"YouTubeMe.co\" that is YouTube-like and connected to MeTube.",
+  "architectural_notes": [
+    "Introduce a payment-gated download flow (price point: $0.63) that restricts file downloads to users with a confirmed payment/entitlement.",
+    "Scope constraint: implement only YouTube-like features feasible on the current platform (exclude unsupported items like livestreaming, AI dubbing, deep analytics/advanced creator AI tools).",
+    "Scope change request: add AI-powered editing and AI video generation features (previously out of scope per \"exclude advanced creator AI tools\").",
+    "Add payout destination configuration so platform revenue can be paid out to a linked card/account.",
+    "AI generation policy change: implement tiered generation limits (free up to 1 hour; $34 paid tier up to 2 hours) and support up to 1080p output quality.",
+    "AI generation inputs: allow users to use their own online images/videos as source material for generation/compositing.",
+    "Content policy constraint: pornographic content must not be generated (add enforcement/moderation checks as needed).",
+    "Branding change: use metube.xyz as the primary/only domain branding and rename the AI generation product surface to “MeTube AI Studios”.",
+    "Auth UX note: MeTube sign-in uses Internet Identity only; add on-page copy clarifying no email/password/username and describing supported login methods (biometrics/security key).",
+    "Scope expansion: add AI image generation and AI-assisted image editing/promo creation within “MeTube AI Studios” (in addition to video generation)."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-update-the-overall-metube-ui-layout-to-feel-youtube-like-add-a-left-navigation-sidebar-collapsible-on-mobile-keep-the-existing-sticky-top-header-and-restructure-main-content-spacing-typography-to-match-a-modern-video-platform-layout",
+      "title": "Update the overall MeTube UI layout to feel YouTube-like: add a left navigation sidebar (collapsible on mobile), keep the existing sticky top header, and restructure main content spacing/typography to match a modern video platform layout.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-header-search-bar-functional-when-a-user-searches-display-matching-videos-using-the-existing-backend-search-api-and-allow-clearing-the-search-to-return-to-the-normal-home-feed",
+      "title": "Make the header search bar functional: when a user searches, display matching videos using the existing backend search API, and allow clearing the search to return to the normal home feed.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-channel-pages-in-the-frontend-provide-a-channel-view-that-shows-channel-name-description-and-a-grid-of-that-channel-s-videos-and-link-to-it-from-video-cards-and-the-video-player-uploader-section",
+      "title": "Add Channel pages in the frontend: provide a channel view that shows channel name/description and a grid of that channel’s videos, and link to it from video cards and the video player uploader section.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-playlists-ui-provide-a-playlists-library-page-listing-the-caller-s-playlists-a-playlist-detail-page-that-shows-playlist-info-and-its-videos-and-ui-to-add-a-video-to-a-playlist-from-the-video-player-page",
+      "title": "Add Playlists UI: provide a Playlists/Library page listing the caller’s playlists, a Playlist detail page that shows playlist info and its videos, and UI to add a video to a playlist from the Video Player page.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-switch-the-visual-theme-to-a-youtube-inspired-look-use-a-red-accent-as-the-primary-color-neutral-grays-for-surfaces-and-update-key-components-buttons-badges-cards-to-match-the-new-theme-consistently-across-light-dark-modes",
+      "title": "Switch the visual theme to a YouTube-inspired look: use a red accent as the primary color, neutral grays for surfaces, and update key components (buttons/badges/cards) to match the new theme consistently across light/dark modes.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-video-player-ui-to-support-paid-downloads-show-a-download-action-only-when-the-viewer-has-download-entitlement-for-the-current-video-otherwise-show-a-download-for-0-63-action-that-starts-stripe-checkout-and-routes-the-user-through-success-cancel-handling",
+      "title": "Update the Video Player UI to support paid downloads: show a \"Download\" action only when the viewer has download entitlement for the current video; otherwise show a \"Download for $0.63\" action that starts Stripe Checkout and routes the user through success/cancel handling.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-routing-and-pages-for-paid-download-payment-callbacks-that-are-separate-from-the-subscription-payment-success-flow-so-completing-a-download-payment-does-not-activate-premium-subscription-after-successful-verification-the-ui-should-show-a-dedicated-success-confirmation-and-allow-returning-to-the-video",
+      "title": "Add routing and pages for paid-download payment callbacks that are separate from the subscription payment success flow, so completing a download payment does not activate Premium subscription; after successful verification, the UI should show a dedicated success confirmation and allow returning to the video.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-creator-studio-area-in-the-frontend-that-lets-an-authenticated-creator-manage-their-uploads-in-a-youtube-studio-like-workflow-list-videos-uploaded-by-the-caller-show-key-status-metrics-and-provide-actions-to-edit-video-details",
+      "title": "Add a Creator Studio area in the frontend that lets an authenticated creator manage their uploads in a YouTube Studio-like workflow (list videos uploaded by the caller, show key status/metrics, and provide actions to edit video details).",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-basic-analytics-view-counts-end-to-end-persist-per-video-view-counts-in-the-backend-and-display-them-in-creator-studio-and-in-relevant-video-management-surfaces",
+      "title": "Implement basic analytics (view counts) end-to-end: persist per-video view counts in the backend and display them in Creator Studio and in relevant video management surfaces.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-creator-metadata-tools-to-edit-video-title-and-description-after-upload-with-appropriate-backend-authorization-only-the-uploader-or-an-admin-can-edit-that-video",
+      "title": "Add creator metadata tools to edit video title and description after upload, with appropriate backend authorization (only the uploader or an admin can edit that video).",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-thumbnail-support-for-videos-allow-creators-to-upload-select-a-thumbnail-image-persist-it-in-the-backend-and-display-it-in-video-cards-and-relevant-pages",
+      "title": "Add thumbnail support for videos: allow creators to upload/select a thumbnail image, persist it in the backend, and display it in video cards and relevant pages.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-tags-system-for-videos-creators-can-set-tags-on-their-videos-tags-are-stored-in-the-backend-and-used-for-discovery-by-including-them-in-video-search-matching",
+      "title": "Add a tags system for videos: creators can set tags on their videos; tags are stored in the backend and used for discovery by including them in video search matching.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-comment-moderation-tools-allow-video-owners-uploaders-and-admins-to-moderate-comments-on-their-videos-at-minimum-delete-and-pin-unpin-optionally-hide-unhide",
+      "title": "Add comment moderation tools: allow video owners (uploaders) and admins to moderate comments on their videos (at minimum delete and pin/unpin; optionally hide/unhide).",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-channel-customization-tools-allow-a-channel-owner-to-update-their-channel-profile-fields-beyond-name-description-including-an-about-section-and-channel-avatar-and-banner-images-and-display-these-on-the-channel-page",
+      "title": "Add channel customization tools: allow a channel owner to update their channel profile fields beyond name/description, including an About section and channel avatar and banner images, and display these on the Channel page.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-in-browser-basic-video-trimming-tool-trim-cut-as-part-of-the-upload-edit-workflow-so-creators-can-select-a-start-and-end-range-and-upload-the-trimmed-result",
+      "title": "Add an in-browser basic video trimming tool (trim/cut) as part of the upload/edit workflow, so creators can select a start and end range and upload the trimmed result.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-ai-edit-feature-in-the-video-editing-upload-workflow-that-can-automatically-suggest-improved-title-description-and-tags-for-a-selected-video-using-an-on-device-heuristic-no-external-ai-apis-and-allow-the-creator-to-review-and-apply-the-suggestions-before-saving",
+      "title": "Add an \"AI Edit\" feature in the video editing/upload workflow that can automatically suggest improved Title, Description, and Tags for a selected video using an on-device heuristic (no external AI APIs), and allow the creator to review and apply the suggestions before saving.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-ai-studio-page-in-the-frontend-that-supports-ai-video-generation-by-creating-a-simple-generated-video-on-the-client-e-g-text-on-background-animated-clip-and-then-routing-that-generated-file-through-the-existing-upload-flow-so-it-can-be-uploaded-as-a-normal-video",
+      "title": "Add an \"AI Studio\" page in the frontend that supports \"AI Video Generation\" by creating a simple generated video on the client (e.g., text-on-background animated clip) and then routing that generated file through the existing upload flow so it can be uploaded as a normal video.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-18-usd-paywall-for-ai-video-generation-users-must-complete-a-one-time-stripe-checkout-payment-of-exactly-1800-cents-usd-to-unlock-ai-studio-video-generation-with-backend-purchase-verification-and-entitlement-storage-per-user",
+      "title": "Implement a $18 USD paywall for AI Video Generation: users must complete a one-time Stripe Checkout payment of exactly 1800 cents (USD) to unlock AI Studio video generation, with backend purchase verification and entitlement storage per user.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-dedicated-ai-generation-payment-callback-routes-pages-separate-from-subscription-and-paid-download-flows-for-success-and-cancel-handling-these-pages-must-verify-the-stripe-session-with-the-backend-and-then-route-the-user-back-to-ai-studio",
+      "title": "Add dedicated AI Generation payment callback routes/pages (separate from subscription and paid-download flows) for success and cancel handling; these pages must verify the Stripe session with the backend and then route the user back to AI Studio.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-admin-configurable-stripe-payout-destination-routing-so-that-money-users-pay-ai-generation-purchases-and-other-existing-checkout-based-payments-can-be-routed-to-the-platform-owner-s-linked-card-account-by-configuring-a-payout-destination-identifier-in-the-app-and-applying-it-when-creating-stripe-checkout-sessions",
+      "title": "Add admin-configurable Stripe payout destination routing so that money users pay (AI generation purchases and other existing Checkout-based payments) can be routed to the platform owner’s linked card/account by configuring a payout destination identifier in the app and applying it when creating Stripe Checkout sessions.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-the-channel-onboarding-navigation-so-users-understand-and-can-set-up-how-their-channel-works-ensure-there-is-a-clear-way-to-reach-the-caller-s-channel-page-and-if-the-caller-has-no-channel-yet-present-a-guided-create-channel-prompt-and-explain-the-basic-channel-concept-in-english",
+      "title": "Improve the channel onboarding/navigation so users understand and can set up how their channel works: ensure there is a clear way to reach the caller’s channel page, and if the caller has no channel yet, present a guided create-channel prompt and explain the basic channel concept in English.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-revise-ai-studio-monetization-from-a-single-18-paywall-to-a-tiered-plan-a-free-users-can-generate-up-to-1-hour-total-video-time-b-users-who-pay-a-one-time-34-usd-can-generate-up-to-2-hours-total-video-time-and-c-the-ui-must-clearly-show-remaining-generation-allowance-minutes-seconds-and-the-upgrade-option-when-applicable",
+      "title": "Revise AI Studio monetization from a single $18 paywall to a tiered plan: (a) free users can generate up to 1 hour total video time, (b) users who pay a one-time $34 USD can generate up to 2 hours total video time, and (c) the UI must clearly show remaining generation allowance (minutes/seconds) and the upgrade option when applicable.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-existing-ai-generation-stripe-checkout-verification-flow-to-upgrade-the-caller-to-the-34-2-hour-tier-instead-of-enabling-ai-studio-via-the-current-18-flow-while-keeping-the-existing-dedicated-ai-generation-success-cancel-routes-pages",
+      "title": "Update the existing AI generation Stripe checkout + verification flow to upgrade the caller to the $34/2-hour tier (instead of enabling AI Studio via the current $18 flow), while keeping the existing dedicated AI generation success/cancel routes/pages.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enforce-no-porn-can-be-generated-by-adding-a-content-policy-gate-in-ai-studio-that-blocks-generation-and-upload-handoff-when-the-user-provided-text-contains-pornographic-explicit-sexual-keywords-and-show-a-clear-english-message-explaining-that-pornographic-content-is-not-allowed",
+      "title": "Enforce “no porn can be generated” by adding a content policy gate in AI Studio that blocks generation and upload handoff when the user-provided text contains pornographic/explicit sexual keywords, and show a clear English message explaining that pornographic content is not allowed.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-support-up-to-1080p-output-for-ai-studio-generation-by-adding-a-resolution-selector-at-least-720p-and-1080p-and-updating-the-client-side-generator-to-render-at-the-selected-resolution-with-a-hard-cap-at-1920-1080",
+      "title": "Support up to 1080p output for AI Studio generation by adding a resolution selector (at least 720p and 1080p) and updating the client-side generator to render at the selected resolution (with a hard cap at 1920×1080).",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-allow-users-to-incorporate-their-own-online-media-into-ai-studio-generation-by-supporting-an-optional-image-url-input-that-is-fetched-client-side-and-used-as-the-video-background-when-provided",
+      "title": "Allow users to incorporate their own online media into AI Studio generation by supporting an optional image URL input that is fetched client-side and used as the video background (when provided).",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-simple-quote-video-preset-in-ai-studio-that-helps-users-generate-high-quality-quote-style-videos-by-providing-a-a-quote-text-field-and-b-an-optional-author-field-that-is-formatted-into-the-generated-content-automatically",
+      "title": "Add a simple “Quote video” preset in AI Studio that helps users generate high-quality quote-style videos by providing (a) a quote text field and (b) an optional author field that is formatted into the generated content automatically.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-primary-platform-branding-across-the-frontend-ui-to-use-metube-xyz-as-the-product-name-xyz-only-branding-including-page-titles-metadata-and-any-prominent-metube-product-name-headings-labels",
+      "title": "Update the primary platform branding across the frontend UI to use “metube.xyz” as the product name (”.xyz-only” branding), including page titles/metadata and any prominent “MeTube” product-name headings/labels.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rename-the-ai-generation-area-everywhere-in-the-frontend-from-ai-studio-to-metube-ai-studios-including-navigation-labels-page-headings-and-payment-success-cancel-messaging-buttons",
+      "title": "Rename the AI generation area everywhere in the frontend from “AI Studio” to “MeTube AI Studios”, including navigation labels, page headings, and payment success/cancel messaging/buttons.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-static-brand-assets-to-match-the-metube-xyz-branding-and-use-the-updated-assets-in-the-header-and-anywhere-else-the-primary-logo-is-displayed",
+      "title": "Update static brand assets to match the metube.xyz branding and use the updated assets in the header (and anywhere else the primary logo is displayed).",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-required-generated-brand-images-as-static-assets-under-frontend-public-assets-generated-and-ensure-they-are-referenced-directly-by-the-frontend-do-not-route-images-through-the-backend",
+      "title": "Add the required generated brand images as static assets under frontend/public/assets/generated and ensure they are referenced directly by the frontend (do not route images through the backend).",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-clear-sign-in-sign-up-help-message-explaining-that-metube-xyz-uses-internet-identity-no-email-password-or-username-and-how-to-sign-in-and-present-it-to-users-at-the-moment-they-attempt-to-log-in",
+      "title": "Add a clear sign-in/sign-up help message explaining that metube.xyz uses Internet Identity (no email, password, or username) and how to sign in, and present it to users at the moment they attempt to log in.",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-discover-page-to-the-frontend-and-make-it-reachable-from-the-left-sidebar-navigation",
+      "title": "Add a new \"Discover\" page to the frontend and make it reachable from the left sidebar navigation.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-prominent-entry-points-on-both-the-home-page-and-the-new-discover-page-that-route-users-to-metube-ai-studios-without-requiring-them-to-open-the-sidebar",
+      "title": "Add prominent entry points on both the Home page and the new Discover page that route users to \"MeTube AI Studios\" without requiring them to open the sidebar.",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-new-ai-chat-room-feature-that-is-available-to-free-users-no-payment-required-including-a-dedicated-frontend-page-and-navigation-entry-points-from-home-and-discover",
+      "title": "Implement a new \"AI Chat Room\" feature that is available to free users (no payment required), including a dedicated frontend page and navigation entry points from Home and Discover.",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-connect-the-frontend-ai-chat-room-page-to-the-backend-chat-apis-using-react-query-including-periodic-refresh-polling-to-simulate-new-messages-without-using-real-time-sockets",
+      "title": "Connect the frontend AI Chat Room page to the backend chat APIs using React Query, including periodic refresh (polling) to simulate new messages without using real-time sockets.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-extend-the-existing-metube-ai-studios-area-to-include-a-new-image-workflow-that-lets-authenticated-users-a-upload-their-own-picture-b-generate-a-new-image-for-free-by-describing-what-they-want-in-a-text-prompt-and-c-create-a-simple-promo-image-based-on-an-uploaded-picture-by-adding-removing-basic-visual-elements-e-g-overlays-stickers-shapes-text-headline-subheadline-and-a-simple-background-remove-subject-cutout-effect-all-user-facing-text-must-be-in-english",
+      "title": "Extend the existing \"MeTube AI Studios\" area to include a new image workflow that lets authenticated users (a) upload their own picture, (b) generate a new image for free by describing what they want in a text prompt, and (c) create a simple promo image based on an uploaded picture by adding/removing basic visual elements (e.g., overlays, stickers/shapes, text headline/subheadline, and a simple background remove / subject cutout effect). All user-facing text must be in English.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-ai-image-generation-and-promo-editing-logic-entirely-on-the-client-no-external-ai-services-use-a-deterministic-on-device-approach-e-g-canvas-based-rendering-with-prompt-driven-templates-styles-and-lightweight-heuristics-to-produce-a-generated-image-result-and-ensure-the-generated-promo-output-can-be-previewed-before-exporting",
+      "title": "Implement the AI image generation and promo editing logic entirely on the client (no external AI services): use a deterministic, on-device approach (e.g., Canvas-based rendering with prompt-driven templates/styles and lightweight heuristics) to produce a generated image result, and ensure the generated/promo output can be previewed before exporting.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-optional-backend-persistence-for-user-created-image-projects-inside-metube-ai-studios-allow-authenticated-users-to-save-and-later-reopen-their-generated-images-promo-exports-as-a-personal-library-list-view-delete-enforce-that-only-the-owner-or-admin-can-access-delete-their-saved-images",
+      "title": "Add optional backend persistence for user-created image projects inside MeTube AI Studios: allow authenticated users to save and later reopen their generated images/promo exports as a personal library (list, view, delete). Enforce that only the owner (or admin) can access/delete their saved images.",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-youtubeme-co-companion-entry-point-that-is-connected-to-metube-add-a-small-clearly-labeled-navigation-cta-in-the-ui-e-g-in-the-footer-and-or-discover-page-that-routes-users-to-an-in-app-informational-page-describing-youtubeme-co-as-a-connected-youtube-like-companion-experience-and-optionally-links-out-to-https-youtubeme-co-if-provided-as-an-external-destination",
+      "title": "Add a \"YouTubeMe.co\" companion entry point that is connected to MeTube: add a small, clearly labeled navigation/CTA in the UI (e.g., in the footer and/or Discover page) that routes users to an in-app informational page describing \"YouTubeMe.co\" as a connected YouTube-like companion experience, and (optionally) links out to https://YouTubeMe.co if provided as an external destination.",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Add user channels to MeTube (channel pages and ownership per user).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add playlists for users (create/manage playlists and add videos).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Expand MeTube toward a full YouTube-like feature set (broader parity request beyond channels/playlists).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add user Channels to the backend: each authenticated user can create and manage a channel profile (channel name, description, created date) tied to their Principal, and anyone can view a channel by owner Principal.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Add Playlists to the backend: allow an authenticated user to create/manage playlists and add/remove videos to playlists. Playlist ownership must be enforced (only owner or admin can modify/view private playlist data).",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Add paid video downloads: allow users to download videos only after paying $0.63.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Implement paid video download entitlements in the backend so that a user can download a specific video only after a successful one-time payment of $0.63 for that video.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Add backend Stripe checkout flow for one-time paid downloads at exactly $0.63 USD, including a backend method to create a Stripe Checkout Session for a specific videoId and a backend method to verify a completed session and grant download entitlement to the caller for that videoId.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Add a basic in-browser video editor (trim/cut) for uploaded videos.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Add a creator dashboard (YouTube Studio-like) for managing a user’s uploads and channel content.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Add basic analytics (at minimum view counts) surfaced in the creator dashboard and/or video management pages.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Add creator metadata tools: thumbnail selection/upload plus title/description editor for videos.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Add a tags system for videos (create/edit tags and use them for discovery/search/metadata).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Add comments and comment moderation tools (delete/pin/hide, basic moderation actions).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Add channel customization tools (banner, icon/avatar, and About section editing).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-19",
+      "summary": "Add AI-assisted video editing tools (\"AI edit\") for creators/users.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Add AI video generation feature that lets users generate videos within MeTube.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Implement payments payout routing so money users pay can be paid out to the platform owner’s linked card/account (payout destination setup).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-23",
+      "summary": "Revise AI video generation monetization and limits: free tier allows generating up to 1 hour of video; paid tier ($34) increases generation allowance up to 2 hours. Support up to 1080p output, allow users to incorporate their own online images/videos as inputs, and enforce a policy that pornographic content cannot be generated.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Add backend persistence for AI generation tier and total generated duration per user, and expose backend APIs to (a) fetch the caller’s generation tier + usage, and (b) record usage after a successful client-side generation so allowance is enforced across sessions/devices.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Make video uploads free by removing the “active subscription required” restriction for uploading videos, while keeping the requirement that the caller must be authenticated to upload.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Rebrand MeTube as metube.xyz (.xyz-only branding) and rename the AI generation area to “MeTube AI Studios”.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Add a clear sign-in/sign-up page message explaining MeTube uses Internet Identity (no email/password/username) and how to sign in (biometrics/security key), to reduce signup confusion.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "Make the AI area (MeTube AI Studios) discoverable directly from the Home/Discover experience (e.g., add entry points/sections/links on the MeTube Home page and the Discover page so users can find it without digging into menus).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-34",
+      "summary": "Add a free AI chat room feature (an AI-powered chat space available to free users).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Add backend support for the AI Chat Room by persisting chat messages and providing APIs to (a) list recent messages and (b) post a new user message; when a user message is posted, also create an \"AI\" response message using an on-canister heuristic (no external AI services).",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Add AI image generation to MeTube AI Studios: users can generate images for free by prompting the AI (Candy.ai-like experience).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-40",
+      "summary": "Add photo-based promo creator in MeTube AI Studios: allow users to upload their pictures, use AI to create a promo, and add/remove elements from the picture (basic AI-assisted image editing).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Create/launch a connected YouTube-like companion site/domain \"YouTubeMe.co\" that is connected to MeTube (shared/linked experience).",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "MeTube",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

@@ -1,0 +1,110 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-15T21:39:06.828Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 4,
+    "implemented": 4,
+    "items": [
+      {
+        "id": "REQ-44",
+        "summary": "Extend the existing \"MeTube AI Studios\" area to include a new image workflow that lets authenticated users (a) upload their own picture, (b) generate a new image for free by describing what they want in a text prompt, and (c) create a simple promo image based on an uploaded picture by adding/removing basic visual elements (e.g., overlays, stickers/shapes, text headline/subheadline, and a simple background remove / subject cutout effect). All user-facing text must be in English.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/AiStudioPage.tsx",
+          "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
+          "frontend/src/components/ai-studio/PromoCreatorCanvas.tsx",
+          "frontend/src/utils/canvasExport.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/AiStudioPage.tsx",
+          "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
+          "frontend/src/components/ai-studio/PromoCreatorCanvas.tsx",
+          "frontend/src/utils/canvasExport.ts"
+        ]
+      },
+      {
+        "id": "REQ-45",
+        "summary": "Implement the AI image generation and promo editing logic entirely on the client (no external AI services): use a deterministic, on-device approach (e.g., Canvas-based rendering with prompt-driven templates/styles and lightweight heuristics) to produce a generated image result, and ensure the generated/promo output can be previewed before exporting.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/aiImageGenerator.ts",
+          "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
+          "frontend/src/utils/networkGuards.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/aiImageGenerator.ts",
+          "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
+          "frontend/src/utils/networkGuards.ts"
+        ]
+      },
+      {
+        "id": "REQ-46",
+        "summary": "Add optional backend persistence for user-created image projects inside MeTube AI Studios: allow authenticated users to save and later reopen their generated images/promo exports as a personal library (list, view, delete). Enforce that only the owner (or admin) can access/delete their saved images.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/ai-studio/SavedImagesLibrary.tsx",
+          "frontend/src/components/ai-studio/ImagesPicturesSection.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/ai-studio/SavedImagesLibrary.tsx",
+          "frontend/src/components/ai-studio/ImagesPicturesSection.tsx"
+        ]
+      },
+      {
+        "id": "REQ-47",
+        "summary": "Add a \"YouTubeMe.co\" companion entry point that is connected to MeTube: add a small, clearly labeled navigation/CTA in the UI (e.g., in the footer and/or Discover page) that routes users to an in-app informational page describing \"YouTubeMe.co\" as a connected YouTube-like companion experience, and (optionally) links out to https://YouTubeMe.co if provided as an external destination.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/YouTubeMePage.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/Footer.tsx",
+          "frontend/src/components/AppShell.tsx",
+          "frontend/src/pages/DiscoverPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/YouTubeMePage.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/Footer.tsx",
+          "frontend/src/components/AppShell.tsx",
+          "frontend/src/pages/DiscoverPage.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/AppShell.tsx",
+    "frontend/src/components/Footer.tsx",
+    "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
+    "frontend/src/components/ai-studio/PromoCreatorCanvas.tsx",
+    "frontend/src/components/ai-studio/SavedImagesLibrary.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AiChatRoomPage.tsx",
+    "frontend/src/pages/AiStudioPage.tsx",
+    "frontend/src/pages/DiscoverPage.tsx",
+    "frontend/src/pages/YouTubeMePage.tsx",
+    "frontend/src/utils/aiImageGenerator.ts",
+    "frontend/src/utils/canvasExport.ts",
+    "frontend/src/utils/networkGuards.ts",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

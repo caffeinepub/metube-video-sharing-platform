@@ -1,0 +1,111 @@
+{
+  "kind": "build_request",
+  "title": "Add AI image generation + promo creator to MeTube AI Studios and add YouTubeMe.co companion entry point",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-44",
+      "text": "Extend the existing \"MeTube AI Studios\" area to include a new image workflow that lets authenticated users (a) upload their own picture, (b) generate a new image for free by describing what they want in a text prompt, and (c) create a simple promo image based on an uploaded picture by adding/removing basic visual elements (e.g., overlays, stickers/shapes, text headline/subheadline, and a simple background remove / subject cutout effect). All user-facing text must be in English.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages-4"
+        ],
+        "quotes": [
+          "and add this to me tube studios. You can uploaded you pictures and users ai on it you create a promo and add and take a way of your picture and you can generated image for free tell the ai what you want and the is like Candy.ai"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When an authenticated user opens MeTube AI Studios, they can access an Images/Pictures section without leaving the AI Studios area (e.g., tabbed UI or clearly separated cards/sections).",
+        "The Images/Pictures section includes: (1) a local file picker to upload an image, (2) a text prompt input to generate an image for free, and (3) a promo creator UI that can place text overlays and simple graphic elements on top of the uploaded image.",
+        "The promo creator provides at least one \"remove\" capability that is fully on-device (no external AI calls), such as background removal using a simple heuristic or a manual erase/brush mask tool.",
+        "The user can export/download the final promo image as a PNG from the browser.",
+        "If the user is not logged in, the AI Studios page continues to show a clear login-required message (in English) for generation features, consistent with the existing AI Studios gating behavior."
+      ]
+    },
+    {
+      "id": "REQ-45",
+      "text": "Implement the AI image generation and promo editing logic entirely on the client (no external AI services): use a deterministic, on-device approach (e.g., Canvas-based rendering with prompt-driven templates/styles and lightweight heuristics) to produce a generated image result, and ensure the generated/promo output can be previewed before exporting.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages-4"
+        ],
+        "quotes": [
+          "users ai on it",
+          "generated image for free tell the ai what you want"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Entering a prompt and clicking \"Generate Image\" produces a new preview image (not just text) generated client-side and renders it in the UI.",
+        "The generated image output supports at least 2 style variants selectable by the user (e.g., \"Poster\", \"Gradient\", \"Minimal\"), implemented locally.",
+        "No network calls to third-party AI APIs are made as part of image generation or promo editing (all computation is local).",
+        "The UI clearly shows loading/progress states during image generation and disables actions while generating."
+      ]
+    },
+    {
+      "id": "REQ-46",
+      "text": "Add optional backend persistence for user-created image projects inside MeTube AI Studios: allow authenticated users to save and later reopen their generated images/promo exports as a personal library (list, view, delete). Enforce that only the owner (or admin) can access/delete their saved images.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "recent-messages-4"
+        ],
+        "quotes": [
+          "You can uploaded you pictures",
+          "create a promo"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A signed-in user can save a generated/promo image to their library and see it listed after a refresh/reload.",
+        "A signed-in user can delete an image they own and it disappears from the library list after mutation completion.",
+        "A different signed-in user cannot access another user’s saved image entries via backend API (must return an authorization error or null response).",
+        "Backend storage uses the existing single-actor Motoko backend and the existing blob-storage capability already present in the project (no new services)."
+      ]
+    },
+    {
+      "id": "REQ-47",
+      "text": "Add a \"YouTubeMe.co\" companion entry point that is connected to MeTube: add a small, clearly labeled navigation/CTA in the UI (e.g., in the footer and/or Discover page) that routes users to an in-app informational page describing \"YouTubeMe.co\" as a connected YouTube-like companion experience, and (optionally) links out to https://YouTubeMe.co if provided as an external destination.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages-4"
+        ],
+        "quotes": [
+          "make a needed site it is name is YouTube Me.co it is like you tube and it is connected to me tube"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The app includes a visible UI entry point labeled \"YouTubeMe.co\" that users can find without opening dev tools (e.g., footer link and a Discover card).",
+        "Clicking the entry point opens an in-app page/section that explains in English what YouTubeMe.co is and how it relates to metube.xyz.",
+        "If an external link to YouTubeMe.co is shown, it opens in a new tab and does not break existing routing within the SPA."
+      ]
+    }
+  ],
+  "constraints": [
+    "Respect the existing single-actor Motoko backend architecture (all new backend logic must live in backend/main.mo).",
+    "Create backend/migration.mo only if required for upgrading existing stable state (conditional migration policy).",
+    "Do not edit files under frontend/src/components/ui or any paths listed in frontend.immutablePaths.",
+    "Do not use external AI APIs or third-party AI services for image generation/editing; implement on-device logic only.",
+    "Use English for any user-facing text."
+  ],
+  "nonGoals": [
+    "Building and deploying a separate standalone frontend application for the YouTubeMe.co domain (this request only adds in-app connected entry points and an informational page).",
+    "Implementing advanced, cloud-scale AI image generation (e.g., diffusion models) or real-time collaboration features.",
+    "Adding new authentication providers (Internet Identity remains the only auth mechanism)."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}
