@@ -2,7 +2,7 @@
   "frontend/src/App.tsx": "Main application component with comprehensive page navigation including YouTubeMe page, proper null handling and correct prop names for all page components (onVideoClick, onChannelClick, onBackToHome, onPlaylistClick, onBackToPlaylists, onEditVideo, onBackToStudio with onBackToHome), search state management, sidebar toggle control, and dynamic document title.",
   "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including new saved images hooks (useGetSavedImages, useSaveImage, useDeleteSavedImage) with proper cache invalidation and error handling.",
   "frontend/src/components/Header.tsx": "Sticky application header with updated metube.xyz logo and alt text, mobile sidebar toggle, functional search bar, subscription status badge, upload button (premium-only), and authentication controls that show an Internet Identity help dialog before login.",
-  "frontend/src/components/Footer.tsx": "Footer component with dynamic copyright year, caffeine.ai attribution with UTM tracking, and optional YouTubeMe.co navigation link.",
+  "frontend/src/components/Footer.tsx": "Footer component with dynamic copyright year, caffeine.ai attribution with UTM tracking, and optional YouTubeMe.xyz navigation link.",
   "frontend/src/components/ProfileSetupModal.tsx": "Modal dialog for first-time user profile setup requiring name input and setting initial subscription status to inactive, with aiGenerationTier managed by backend/payment flow.",
   "frontend/src/pages/HomePage.tsx": "Home page displaying video grid with support for both default feed and search results modes, featuring prominent entry point cards for MeTube AI Studios and AI Chat Room when not in search mode.",
   "frontend/src/pages/UploadPage.tsx": "Video upload page with premium subscription requirement check, file selection with optional trimming UI (start/end time sliders), metadata input (title, description), thumbnail picker with preview, tags editor, and upload progress tracking with trim processing state.",
@@ -32,7 +32,7 @@
   "frontend/index.html": "HTML entry point with updated metube.xyz branding in title and favicon reference to the new generated asset.",
   "frontend/src/pages/AiGenerationPaymentCancelPage.tsx": "AI generation payment cancellation page with updated MeTube AI Studios branding in messaging and navigation buttons.",
   "frontend/src/components/InternetIdentityHelpDialog.tsx": "Modal dialog component that displays a simple-English explanation of Internet Identity sign-in (no email/password/username; uses device biometrics or security key) with Continue and Cancel actions.",
-  "frontend/src/pages/DiscoverPage.tsx": "Discover page showcasing AI-powered features with cards for MeTube AI Studios, AI Chat Room, and new YouTubeMe.co entry point with external link.",
+  "frontend/src/pages/DiscoverPage.tsx": "Discover page showcasing AI-powered features with cards for MeTube AI Studios, AI Chat Room, and YouTubeMe.xyz entry point with external link to https://YouTubeMe.xyz.",
   "frontend/src/pages/AiChatRoomPage.tsx": "AI Chat Room page with real-time message display using polling (no arguments passed to useGetLatestMessages), authentication-gated posting, user and AI message differentiation, and auto-scrolling chat interface.",
   "frontend/src/utils/aiImageGenerator.ts": "Client-side AI-like image generation using Canvas with 4 style variants (poster, gradient, minimal, vibrant), deterministic rendering based on prompt hash, and progress callback support.",
   "frontend/src/utils/canvasExport.ts": "Canvas export utilities providing PNG download, data URL conversion, blob URL generation, and image file loading helpers for the promo creator.",
@@ -40,5 +40,5 @@
   "frontend/src/components/ai-studio/ImagesPicturesSection.tsx": "Images/Pictures section component with tabbed UI for image generation (prompt + 4 styles), file upload, promo creator integration, and saved images library management.",
   "frontend/src/components/ai-studio/PromoCreatorCanvas.tsx": "Promo creator canvas editor with text overlay controls (headline, subheadline, color, size), on-device background erase tool, PNG export, and save-to-library dialog.",
   "frontend/src/components/ai-studio/SavedImagesLibrary.tsx": "Saved images library component displaying user's saved promo images in a grid with preview, reopen, and delete actions with confirmation dialog.",
-  "frontend/src/pages/YouTubeMePage.tsx": "YouTubeMe.co informational page explaining the connected YouTube-like companion experience for metube.xyz with feature highlights and external link opening in new tab."
+  "frontend/src/pages/YouTubeMePage.tsx": "YouTubeMe.xyz informational page explaining the connected YouTube-like companion experience for metube.xyz with feature highlights and external link opening in new tab to https://YouTubeMe.xyz."
 }

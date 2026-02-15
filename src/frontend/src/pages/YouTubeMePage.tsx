@@ -7,7 +7,7 @@ export default function YouTubeMePage() {
     <div className="container py-8 px-4 max-w-4xl mx-auto">
       <div className="space-y-6">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">YouTubeMe.co</h1>
+          <h1 className="text-4xl font-bold">YouTubeMe.xyz</h1>
           <p className="text-xl text-muted-foreground">
             Your Connected YouTube-Like Experience
           </p>
@@ -17,12 +17,12 @@ export default function YouTubeMePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Video className="h-6 w-6 text-primary" />
-              What is YouTubeMe.co?
+              What is YouTubeMe.xyz?
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              YouTubeMe.co is a connected companion experience for metube.xyz, designed to provide
+              YouTubeMe.xyz is a connected companion experience for metube.xyz, designed to provide
               a familiar YouTube-like interface while leveraging the power of decentralized video
               hosting and AI-powered content creation.
             </p>
@@ -83,13 +83,13 @@ export default function YouTubeMePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              YouTubeMe.co acts as an alternative frontend for the metube.xyz platform. All your
+              YouTubeMe.xyz acts as an alternative frontend for the metube.xyz platform. All your
               videos, playlists, and account data remain synchronized between both platforms,
               giving you the flexibility to choose your preferred viewing experience.
             </p>
             <p className="text-muted-foreground">
               Whether you're uploading content, managing your channel, or exploring AI-generated
-              videos, YouTubeMe.co provides a streamlined interface that complements the full
+              videos, YouTubeMe.xyz provides a streamlined interface that complements the full
               feature set available on metube.xyz.
             </p>
           </CardContent>
@@ -98,16 +98,16 @@ export default function YouTubeMePage() {
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
           <CardContent className="pt-6 text-center space-y-4">
             <p className="text-lg font-semibold">
-              Ready to explore YouTubeMe.co?
+              Ready to explore YouTubeMe.xyz?
             </p>
             <Button size="lg" asChild>
               <a
-                href="https://YouTubeMe.co"
+                href="https://YouTubeMe.xyz"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2"
               >
-                Visit YouTubeMe.co
+                Visit YouTubeMe.xyz
                 <ExternalLink className="h-4 w-4" />
               </a>
             </Button>

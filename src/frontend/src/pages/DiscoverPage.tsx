@@ -9,7 +9,7 @@ interface DiscoverPageProps {
 
 export default function DiscoverPage({ onNavigateToAiStudio, onNavigateToAiChatRoom }: DiscoverPageProps) {
   const handleYouTubeMeClick = () => {
-    window.open('https://YouTubeMe.co', '_blank', 'noopener,noreferrer');
+    window.open('https://YouTubeMe.xyz', '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -73,7 +73,7 @@ export default function DiscoverPage({ onNavigateToAiStudio, onNavigateToAiChatR
               <div className="p-3 rounded-lg bg-secondary/10">
                 <Video className="h-8 w-8 text-secondary-foreground" />
               </div>
-              <CardTitle className="text-2xl">YouTubeMe.co</CardTitle>
+              <CardTitle className="text-2xl">YouTubeMe.xyz</CardTitle>
             </div>
             <CardDescription className="text-base mt-2">
               Experience metube.xyz through a familiar YouTube-like interface. 
@@ -83,7 +83,7 @@ export default function DiscoverPage({ onNavigateToAiStudio, onNavigateToAiChatR
           <CardContent>
             <Button onClick={handleYouTubeMeClick} variant="outline" className="w-full" size="lg">
               <Video className="mr-2 h-5 w-5" />
-              Visit YouTubeMe.co
+              Visit YouTubeMe.xyz
             </Button>
           </CardContent>
         </Card>
@@ -102,7 +102,7 @@ export default function DiscoverPage({ onNavigateToAiStudio, onNavigateToAiChatR
           </li>
           <li className="flex items-start gap-2">
             <span className="text-primary mt-1">•</span>
-            <span>YouTubeMe.co - New connected platform for enhanced viewing experience</span>
+            <span>YouTubeMe.xyz - New connected platform for enhanced viewing experience</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-primary mt-1">•</span>

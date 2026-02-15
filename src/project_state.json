@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 19,
-  "summary": "Expand MeTube/\"MeTube AI Studios\" to include AI-powered image generation and image-based promo creation using user-uploaded pictures, and consider launching/connecting a companion site/domain \"YouTubeMe.co\" that is YouTube-like and connected to MeTube.",
+  "projectStateVersion": 21,
+  "summary": "Expand MeTube/\"MeTube AI Studios\" to include AI-powered image generation and image-based promo creation using user-uploaded pictures, and consider launching/connecting a companion site/domain \"YouTubeMe.xyz\" (renamed from YouTubeMe.co) that is YouTube-like and connected to MeTube.",
   "architectural_notes": [
     "Introduce a payment-gated download flow (price point: $0.63) that restricts file downloads to users with a confirmed payment/entitlement.",
     "Scope constraint: implement only YouTube-like features feasible on the current platform (exclude unsupported items like livestreaming, AI dubbing, deep analytics/advanced creator AI tools).",
@@ -336,6 +336,14 @@
         "REQ-47"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-all-companion-experience-labels-user-facing-copy-and-external-links-in-the-frontend-from-youtubeme-co-to-youtubeme-xyz-including-the-discover-page-card-the-what-s-new-bullet-the-footer-cta-label-and-the-youtubeme-informational-page-content",
+      "title": "Update all companion-experience labels, user-facing copy, and external links in the frontend from “YouTubeMe.co” to “YouTubeMe.xyz”, including the Discover page card, the “What’s New” bullet, the footer CTA label, and the YouTubeMe informational page content.",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -524,6 +532,12 @@
     {
       "id": "AR-41",
       "summary": "Create/launch a connected YouTube-like companion site/domain \"YouTubeMe.co\" that is connected to MeTube (shared/linked experience).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-42",
+      "summary": "Change the planned companion domain from YouTubeMe.co to YouTubeMe.xyz (update all related UI text, links, and informational page content accordingly).",
       "reqIds": [],
       "status": "pending"
     }

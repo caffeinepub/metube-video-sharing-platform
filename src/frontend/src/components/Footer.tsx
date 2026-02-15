@@ -29,7 +29,7 @@ export default function Footer({ onNavigateToYouTubeMe }: FooterProps) {
             onClick={onNavigateToYouTubeMe}
             className="text-sm text-primary hover:underline font-medium"
           >
-            YouTubeMe.co
+            YouTubeMe.xyz
           </button>
         )}
       </div>

@@ -1,128 +1,34 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "MeTube AI Studios: Client-side Images workflow + YouTubeMe.co entry point",
+  "title": "Rename YouTubeMe.co to YouTubeMe.xyz across companion experience UI",
   "requirements": [
     {
-      "id": "REQ-44",
-      "summary": "Extend MeTube AI Studios with an in-area Images/Pictures section for upload, free prompt-based image generation, and a promo creator with overlays and on-device remove tool, exportable as PNG (English-only UI).",
+      "id": "REQ-48",
+      "summary": "Replace all user-facing “YouTubeMe.co” labels and links with “YouTubeMe.xyz” across Discover, footer CTA, and the YouTubeMe informational page.",
       "acceptanceCriteria": [
-        "When an authenticated user opens MeTube AI Studios, they can access an Images/Pictures section without leaving the AI Studios area (e.g., tabbed UI or clearly separated cards/sections).",
-        "The Images/Pictures section includes: (1) a local file picker to upload an image, (2) a text prompt input to generate an image for free, and (3) a promo creator UI that can place text overlays and simple graphic elements on top of the uploaded image.",
-        "The promo creator provides at least one \"remove\" capability that is fully on-device (no external AI calls), such as background removal using a simple heuristic or a manual erase/brush mask tool.",
-        "The user can export/download the final promo image as a PNG from the browser.",
-        "If the user is not logged in, the AI Studios page continues to show a clear login-required message (in English) for generation features, consistent with the existing AI Studios gating behavior."
+        "On the Discover page, the companion card title and button text say “YouTubeMe.xyz” (not “YouTubeMe.co”).",
+        "On the Discover page, the companion card opens https://YouTubeMe.xyz (not https://YouTubeMe.co).",
+        "In the Discover page “What’s New” list, any mention of “YouTubeMe.co” is replaced with “YouTubeMe.xyz”.",
+        "In the footer, the optional CTA button label reads “YouTubeMe.xyz”.",
+        "On the YouTubeMe informational page, the heading and all body copy refer to “YouTubeMe.xyz” and the external link points to https://YouTubeMe.xyz.",
+        "No remaining user-visible text in the frontend references “YouTubeMe.co”."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/AiStudioPage.tsx",
+          "path": "frontend/src/pages/DiscoverPage.tsx",
           "operation": "modify",
-          "description": "Add an Images/Pictures section within the existing MeTube AI Studios area (e.g., tabs/segmented cards) while keeping the current login gating behavior and English-only text. Wire the new Images/Pictures UI to the existing page layout (no new top-level route). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
-          "operation": "create",
-          "description": "Create the Images/Pictures section UI containing: (1) local file picker + preview, (2) prompt + style selector for free client-side generation, and (3) promo creator canvas with text headline/subheadline and simple shapes/stickers/overlays. Include a PNG download/export action. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/ai-studio/PromoCreatorCanvas.tsx",
-          "operation": "create",
-          "description": "Implement the promo creator canvas editor UI (drag/position text and simple graphic elements, adjust colors/sizes) and integrate an on-device remove tool (e.g., brush/erase mask layer) that affects the rendered composite. Provide live preview of the composite in the editor. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/utils/canvasExport.ts",
-          "operation": "create",
-          "description": "Add client-side helpers to export the composed promo canvas to a PNG download (Blob/ObjectURL) and to generate preview image URLs for display; ensure no network calls are required. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-45",
-      "summary": "Implement deterministic, on-device AI-like image generation (Canvas templates) with at least two selectable style variants, preview, and proper generating/progress UI without third-party AI calls.",
-      "acceptanceCriteria": [
-        "Entering a prompt and clicking \"Generate Image\" produces a new preview image (not just text) generated client-side and renders it in the UI.",
-        "The generated image output supports at least 2 style variants selectable by the user (e.g., \"Poster\", \"Gradient\", \"Minimal\"), implemented locally.",
-        "No network calls to third-party AI APIs are made as part of image generation or promo editing (all computation is local).",
-        "The UI clearly shows loading/progress states during image generation and disables actions while generating."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/utils/aiImageGenerator.ts",
-          "operation": "create",
-          "description": "Implement deterministic, on-device image generation using Canvas-based rendering driven by the prompt and a style variant (minimum 2 styles). Return a generated image preview (e.g., data URL / Blob URL) suitable for UI rendering, and support an optional progress callback for UI loading states. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
-          "operation": "modify",
-          "description": "Wire the prompt-based generator into the Images/Pictures UI with: style variant selector (>=2), Generate Image button, progress/loading indicator, and disabled controls while generating. Ensure preview updates to a real generated image. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/utils/networkGuards.ts",
-          "operation": "create",
-          "description": "Add lightweight utilities/helpers used by the Images/Pictures workflow to ensure generation/editing code paths do not perform third-party AI API calls (keep computation local; allow only explicit user-initiated fetches such as none for generation). Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-46",
-      "summary": "Add optional frontend library UI for saving, listing, reopening, and deleting a signed-in user's image projects via existing backend capabilities, handling authorization failures gracefully.",
-      "acceptanceCriteria": [
-        "A signed-in user can save a generated/promo image to their library and see it listed after a refresh/reload.",
-        "A signed-in user can delete an image they own and it disappears from the library list after mutation completion.",
-        "A different signed-in user cannot access another user’s saved image entries via backend API (must return an authorization error or null response).",
-        "Backend storage uses the existing single-actor Motoko backend and the existing blob-storage capability already present in the project (no new services)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add React Query hooks for the saved image library using existing backend interface methods: getSavedImages(), saveImage(image), and deleteSavedImage(imageUrl). Ensure hooks surface authorization errors (trap messages) in an English, user-friendly way. Use the blob-storage ExternalBlob client class when converting generated PNG bytes to a storable form if needed for the existing backend integration; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/ai-studio/SavedImagesLibrary.tsx",
-          "operation": "create",
-          "description": "Create a library panel for authenticated users that lists saved images, supports viewing/reopening an item back into the Images/Pictures workflow, and provides a delete action with confirmation/loading states. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
-          "operation": "modify",
-          "description": "Integrate the SavedImagesLibrary into the Images/Pictures section and add a Save action for the current generated/promo output (title/description/tags in English, plus image reference). Refresh the list after save/delete, and ensure the current output can be reopened from a library item. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-47",
-      "summary": "Add a visible YouTubeMe.co UI entry point (footer and Discover card) that navigates to an in-app informational page with optional external link opening in a new tab.",
-      "acceptanceCriteria": [
-        "The app includes a visible UI entry point labeled \"YouTubeMe.co\" that users can find without opening dev tools (e.g., footer link and a Discover card).",
-        "Clicking the entry point opens an in-app page/section that explains in English what YouTubeMe.co is and how it relates to metube.xyz.",
-        "If an external link to YouTubeMe.co is shown, it opens in a new tab and does not break existing routing within the SPA."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/YouTubeMePage.tsx",
-          "operation": "create",
-          "description": "Create an in-app informational page/section describing YouTubeMe.co as a connected YouTube-like companion experience for metube.xyz, with English-only text and an optional external link to https://YouTubeMe.co opening in a new tab (rel noopener/noreferrer). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Wire the YouTubeMe.co informational page into the app's existing state-based navigation by adding a new page key, navigation function, and render branch for the new page. Ensure existing routing behavior remains intact. Verify the component's usage instructions before implementing."
+          "description": "Update the companion-experience card title and button label from “YouTubeMe.co” to “YouTubeMe.xyz”; update the click handler to open https://YouTubeMe.xyz; update the “What’s New” bullet text to reference “YouTubeMe.xyz”."
         },
         {
           "path": "frontend/src/components/Footer.tsx",
           "operation": "modify",
-          "description": "Add a clearly labeled \"YouTubeMe.co\" CTA/link in the footer that navigates to the in-app informational page (and optionally shows an external link that opens in a new tab). Adjust component props as needed and keep all user-facing text in English. Verify the component's usage instructions before implementing."
+          "description": "Update the optional footer CTA button label from “YouTubeMe.co” to “YouTubeMe.xyz” while keeping the existing navigation behavior unchanged."
         },
         {
-          "path": "frontend/src/components/AppShell.tsx",
+          "path": "frontend/src/pages/YouTubeMePage.tsx",
           "operation": "modify",
-          "description": "Include the Footer within the shell (if not already present) and pass an in-app navigation callback so the YouTubeMe.co footer CTA can route without breaking SPA behavior. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/DiscoverPage.tsx",
-          "operation": "modify",
-          "description": "Add a Discover card/CTA labeled \"YouTubeMe.co\" that routes to the new in-app informational page, keeping consistent styling with existing cards and English-only text. Verify the component's usage instructions before implementing."
+          "description": "Update the page heading and all body copy to refer to “YouTubeMe.xyz” (not “YouTubeMe.co”), including section titles and CTA text; update the external link href to https://YouTubeMe.xyz and ensure the CTA button text also reads “YouTubeMe.xyz”."
         }
       ]
     }

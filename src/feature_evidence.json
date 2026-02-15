@@ -2,84 +2,9 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-extend-the-existing-metube-ai-studios-area-to-include-a-new-image-workflow-that-lets-authenticated-users-a-upload-their-own-picture-b-generate-a-new-image-for-free-by-describing-what-they-want-in-a-text-prompt-and-c-create-a-simple-promo-image-based-on-an-uploaded-picture-by-adding-removing-basic-visual-elements-e-g-overlays-stickers-shapes-text-headline-subheadline-and-a-simple-background-remove-subject-cutout-effect-all-user-facing-text-must-be-in-english",
-      "featureTitle": "Extend the existing \"MeTube AI Studios\" area to include a new image workflow that lets authenticated users (a) upload their own picture, (b) generate a new image for free by describing what they want in a text prompt, and (c) create a simple promo image based on an uploaded picture by adding/removing basic visual elements (e.g., overlays, stickers/shapes, text headline/subheadline, and a simple background remove / subject cutout effect). All user-facing text must be in English.",
+      "featureId": "feature-update-all-companion-experience-labels-user-facing-copy-and-external-links-in-the-frontend-from-youtubeme-co-to-youtubeme-xyz-including-the-discover-page-card-the-what-s-new-bullet-the-footer-cta-label-and-the-youtubeme-informational-page-content",
+      "featureTitle": "Update all companion-experience labels, user-facing copy, and external links in the frontend from “YouTubeMe.co” to “YouTubeMe.xyz”, including the Discover page card, the “What’s New” bullet, the footer CTA label, and the YouTubeMe informational page content.",
       "files": [
-        "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
-        "frontend/src/components/ai-studio/PromoCreatorCanvas.tsx",
-        "frontend/src/pages/AiStudioPage.tsx",
-        "frontend/src/utils/canvasExport.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "stripe@3.0.0",
-        "http-outcalls@3.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-44"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-the-ai-image-generation-and-promo-editing-logic-entirely-on-the-client-no-external-ai-services-use-a-deterministic-on-device-approach-e-g-canvas-based-rendering-with-prompt-driven-templates-styles-and-lightweight-heuristics-to-produce-a-generated-image-result-and-ensure-the-generated-promo-output-can-be-previewed-before-exporting",
-      "featureTitle": "Implement the AI image generation and promo editing logic entirely on the client (no external AI services): use a deterministic, on-device approach (e.g., Canvas-based rendering with prompt-driven templates/styles and lightweight heuristics) to produce a generated image result, and ensure the generated/promo output can be previewed before exporting.",
-      "files": [
-        "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
-        "frontend/src/utils/aiImageGenerator.ts",
-        "frontend/src/utils/networkGuards.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "stripe@3.0.0",
-        "http-outcalls@3.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-45"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-optional-backend-persistence-for-user-created-image-projects-inside-metube-ai-studios-allow-authenticated-users-to-save-and-later-reopen-their-generated-images-promo-exports-as-a-personal-library-list-view-delete-enforce-that-only-the-owner-or-admin-can-access-delete-their-saved-images",
-      "featureTitle": "Add optional backend persistence for user-created image projects inside MeTube AI Studios: allow authenticated users to save and later reopen their generated images/promo exports as a personal library (list, view, delete). Enforce that only the owner (or admin) can access/delete their saved images.",
-      "files": [
-        "frontend/src/components/ai-studio/ImagesPicturesSection.tsx",
-        "frontend/src/components/ai-studio/SavedImagesLibrary.tsx",
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "stripe@3.0.0",
-        "http-outcalls@3.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-46"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-youtubeme-co-companion-entry-point-that-is-connected-to-metube-add-a-small-clearly-labeled-navigation-cta-in-the-ui-e-g-in-the-footer-and-or-discover-page-that-routes-users-to-an-in-app-informational-page-describing-youtubeme-co-as-a-connected-youtube-like-companion-experience-and-optionally-links-out-to-https-youtubeme-co-if-provided-as-an-external-destination",
-      "featureTitle": "Add a \"YouTubeMe.co\" companion entry point that is connected to MeTube: add a small, clearly labeled navigation/CTA in the UI (e.g., in the footer and/or Discover page) that routes users to an in-app informational page describing \"YouTubeMe.co\" as a connected YouTube-like companion experience, and (optionally) links out to https://YouTubeMe.co if provided as an external destination.",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/AppShell.tsx",
         "frontend/src/components/Footer.tsx",
         "frontend/src/pages/DiscoverPage.tsx",
         "frontend/src/pages/YouTubeMePage.tsx"
@@ -96,7 +21,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-47"
+        "REQ-48"
       ],
       "confidence": "high"
     }
