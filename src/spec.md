@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Allow AI video generation prompts containing adult/sexual terms by removing the current keyword-based blocking behavior and updating related UI messaging.
+**Goal:** Add a clear in-app “Install App” entry point for the metube.xyz PWA that can trigger the native install prompt when available, with an iOS/Safari fallback that shows installation instructions.
 
 **Planned changes:**
-- Remove the frontend prompt keyword block that prevents AI video generation when adult/sexual terms (e.g., “sex”) are present.
-- Update AI Studio (Video Generation) user-facing policy UI/copy so it no longer claims prompts will be rejected due to banned keywords; ensure all revised text is in English.
-- Adjust the local content policy utility so adult/sexual keywords are no longer treated/exposed as hard-prohibited terms for AI generation, and ensure no runtime errors in MeTube AI Studios.
+- Add a discoverable “Install App” action within the app UI (e.g., via an existing menu/overflow area) that is only shown when the app is not already installed.
+- Wire the action to trigger the native PWA install prompt via `beforeinstallprompt` when supported.
+- Provide an in-app, dismissible modal (or equivalent) with step-by-step English instructions for iOS/Safari when `beforeinstallprompt` is unavailable.
+- Ensure the existing install banner and the new “Install App” entry point do not conflict (avoid redundant prompts) and both properly stop showing after successful installation without requiring a refresh.
 
-**User-visible outcome:** In MeTube AI Studios > Video Generation, users can enter prompts containing previously-blocked adult/sexual words (e.g., “sex”) and generation proceeds normally (subject to login and remaining generation time limits), without showing the prohibited-content error toast.
+**User-visible outcome:** Mobile users can intentionally install metube.xyz from a clear “Install App” action; supported browsers show the native install prompt, while iOS/Safari users see clear add-to-home-screen instructions in a dismissible in-app UI.

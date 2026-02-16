@@ -1,185 +1,294 @@
 import { useState, useRef, useEffect } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useUploadVideo, useGetCallerUserProfile } from '../hooks/useQueries';
+import { useGetCallerUserProfile, useUploadVideo } from '../hooks/useQueries';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Upload, Loader2, X, Scissors } from 'lucide-react';
-import { ExternalBlob, SubscriptionStatus } from '../backend';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Upload, AlertCircle, Crown, X, Scissors } from 'lucide-react';
 import { toast } from 'sonner';
-import type { GeneratedVideo } from '../utils/aiVideoGenerator';
+import { ExternalBlob } from '../backend';
+import { Slider } from '@/components/ui/slider';
+import { validateUploadMetadata } from '../utils/uploadModeration';
 
 interface UploadPageProps {
-  onUploadSuccess: () => void;
-  preselectedVideo?: GeneratedVideo | null;
-  initialMetadata?: { title: string; description: string; tags: string[] } | null;
+  prefilledVideo?: { blob: Blob; url: string };
+  prefilledMetadata?: { title: string; description: string; tags: string[] };
+  onUploadComplete?: () => void;
 }
 
-export default function UploadPage({ onUploadSuccess, preselectedVideo, initialMetadata }: UploadPageProps) {
+export default function UploadPage({ prefilledVideo, prefilledMetadata, onUploadComplete }: UploadPageProps) {
   const { identity } = useInternetIdentity();
   const { data: userProfile } = useGetCallerUserProfile();
-  const uploadVideo = useUploadVideo();
+  const uploadMutation = useUploadVideo();
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [tags, setTags] = useState<string[]>([]);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(prefilledVideo?.url || null);
+  const [title, setTitle] = useState(prefilledMetadata?.title || '');
+  const [description, setDescription] = useState(prefilledMetadata?.description || '');
+  const [tags, setTags] = useState<string[]>(prefilledMetadata?.tags || []);
   const [tagInput, setTagInput] = useState('');
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreviewUrl, setThumbnailPreviewUrl] = useState<string | null>(null);
+  const [selectedThumbnailIndex, setSelectedThumbnailIndex] = useState<number | null>(null);
+  const [generatedThumbnails, setGeneratedThumbnails] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-  const [trimStart, setTrimStart] = useState(0);
-  const [trimEnd, setTrimEnd] = useState(0);
-  const [videoDuration, setVideoDuration] = useState(0);
+
+  // Trimming state
   const [enableTrim, setEnableTrim] = useState(false);
+  const [trimStart, setTrimStart] = useState([0]);
+  const [trimEnd, setTrimEnd] = useState([10]);
+  const [videoDuration, setVideoDuration] = useState(10);
   const [isTrimming, setIsTrimming] = useState(false);
 
-  const videoInputRef = useRef<HTMLInputElement>(null);
-  const thumbnailInputRef = useRef<HTMLInputElement>(null);
-  const videoPreviewRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isAuthenticated = !!identity;
-  const hasActiveSubscription = userProfile?.subscriptionStatus === SubscriptionStatus.active;
+  const isPremium = userProfile?.subscriptionStatus === 'active';
 
-  // Handle preselected video from AI Studio
   useEffect(() => {
-    if (preselectedVideo) {
-      setVideoFile(preselectedVideo.file);
-      const video = document.createElement('video');
-      video.preload = 'metadata';
+    if (prefilledVideo) {
+      setVideoFile(new File([prefilledVideo.blob], 'generated-video.webm', { type: 'video/webm' }));
+    }
+  }, [prefilledVideo]);
+
+  useEffect(() => {
+    if (videoFile && videoRef.current) {
+      const video = videoRef.current;
       video.onloadedmetadata = () => {
-        setVideoDuration(video.duration);
-        setTrimEnd(video.duration);
-        URL.revokeObjectURL(video.src);
+        const duration = video.duration;
+        setVideoDuration(duration);
+        setTrimEnd([duration]);
       };
-      video.src = preselectedVideo.previewUrl;
     }
-  }, [preselectedVideo]);
+  }, [videoFile, videoPreviewUrl]);
 
-  // Handle initial metadata from AI Studio
-  useEffect(() => {
-    if (initialMetadata) {
-      setTitle(initialMetadata.title);
-      setDescription(initialMetadata.description);
-      setTags(initialMetadata.tags);
-    }
-  }, [initialMetadata]);
+  if (!isAuthenticated) {
+    return (
+      <div className="container max-w-4xl py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Upload Video</CardTitle>
+            <CardDescription>Please log in to upload videos</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
-  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (!isPremium) {
+    return (
+      <div className="container max-w-4xl py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Crown className="h-6 w-6 text-primary" />
+              Premium Feature
+            </CardTitle>
+            <CardDescription>
+              Video uploads are available for premium subscribers only
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Upgrade to premium to upload your videos and share them with the community.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('video/')) {
-        toast.error('Please select a video file');
-        return;
-      }
-      setVideoFile(file);
-      
-      // Load video to get duration
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-      video.onloadedmetadata = () => {
-        setVideoDuration(video.duration);
-        setTrimEnd(video.duration);
-        URL.revokeObjectURL(video.src);
-      };
-      video.src = URL.createObjectURL(file);
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      toast.error('Please select a video file');
+      return;
     }
+
+    setVideoFile(file);
+    const url = URL.createObjectURL(file);
+    setVideoPreviewUrl(url);
+    generateThumbnails(file);
   };
 
-  const handleThumbnailSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please select an image file');
-        return;
-      }
-      setThumbnailFile(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setThumbnailPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+  const generateThumbnails = async (file: File) => {
+    const video = document.createElement('video');
+    video.src = URL.createObjectURL(file);
+    video.muted = true;
+
+    await new Promise((resolve) => {
+      video.onloadedmetadata = resolve;
+    });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 320;
+    canvas.height = 180;
+    const ctx = canvas.getContext('2d');
+
+    const thumbnails: string[] = [];
+    const duration = video.duration;
+    const positions = [0.1, 0.3, 0.5, 0.7, 0.9];
+
+    for (const pos of positions) {
+      video.currentTime = duration * pos;
+      await new Promise((resolve) => {
+        video.onseeked = resolve;
+      });
+
+      ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+      thumbnails.push(canvas.toDataURL('image/jpeg', 0.8));
     }
+
+    setGeneratedThumbnails(thumbnails);
+    URL.revokeObjectURL(video.src);
   };
 
-  const handleAddTag = () => {
-    const trimmed = tagInput.trim();
-    if (trimmed && !tags.includes(trimmed)) {
-      setTags([...tags, trimmed]);
+  const handleThumbnailSelect = (index: number) => {
+    setSelectedThumbnailIndex(index);
+    setThumbnailPreviewUrl(generatedThumbnails[index]);
+    setThumbnailFile(null);
+  };
+
+  const handleCustomThumbnail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    setThumbnailFile(file);
+    const url = URL.createObjectURL(file);
+    setThumbnailPreviewUrl(url);
+    setSelectedThumbnailIndex(null);
+  };
+
+  const addTag = () => {
+    const trimmedTag = tagInput.trim();
+    if (trimmedTag && !tags.includes(trimmedTag)) {
+      setTags([...tags, trimmedTag]);
       setTagInput('');
     }
   };
 
-  const handleRemoveTag = (tagToRemove: string) => {
+  const removeTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
   const trimVideo = async (file: File, start: number, end: number): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const video = document.createElement('video');
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      if (!ctx) {
-        reject(new Error('Canvas context not available'));
-        return;
-      }
+      video.src = URL.createObjectURL(file);
+      video.muted = true;
 
-      video.preload = 'metadata';
-      video.onloadedmetadata = () => {
+      video.onloadedmetadata = async () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        
-        // For simplicity, we'll just use the original file
-        // Real trimming would require MediaRecorder API or server-side processing
-        toast.info('Video trimming is simulated. Full video will be uploaded.');
-        resolve(file);
+
+        const stream = canvas.captureStream(30);
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'video/webm;codecs=vp8',
+        });
+
+        const chunks: Blob[] = [];
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'video/webm' });
+          URL.revokeObjectURL(video.src);
+          resolve(blob);
+        };
+
+        video.currentTime = start;
+        video.onseeked = () => {
+          mediaRecorder.start();
+          video.play();
+        };
+
+        video.ontimeupdate = () => {
+          if (video.currentTime >= end) {
+            video.pause();
+            mediaRecorder.stop();
+          } else {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          }
+        };
       };
-      
-      video.onerror = () => reject(new Error('Failed to load video'));
-      video.src = URL.createObjectURL(file);
+
+      video.onerror = () => {
+        reject(new Error('Failed to load video'));
+      };
     });
   };
 
   const handleUpload = async () => {
-    if (!title.trim()) {
-      toast.error('Please enter a title');
-      return;
-    }
     if (!videoFile) {
       toast.error('Please select a video file');
       return;
     }
 
+    if (!title.trim()) {
+      toast.error('Please enter a title');
+      return;
+    }
+
+    // Validate metadata for sexually explicit content
+    const validation = validateUploadMetadata({
+      title: title.trim(),
+      description: description.trim(),
+      tags,
+    });
+
+    if (!validation.allowed) {
+      toast.error(validation.error || 'Content not allowed');
+      return;
+    }
+
     try {
-      setIsTrimming(enableTrim);
-      
-      let finalVideoFile = videoFile;
-      if (enableTrim && trimStart > 0 || trimEnd < videoDuration) {
-        toast.info('Processing video trim...');
-        finalVideoFile = await trimVideo(videoFile, trimStart, trimEnd) as File;
+      setIsTrimming(true);
+      let finalVideoBlob: Blob = videoFile;
+
+      if (enableTrim && trimStart[0] > 0 || trimEnd[0] < videoDuration) {
+        toast.info('Trimming video...');
+        finalVideoBlob = await trimVideo(videoFile, trimStart[0], trimEnd[0]);
       }
-      
+
       setIsTrimming(false);
 
-      const videoArrayBuffer = await finalVideoFile.arrayBuffer();
-      const videoBytes = new Uint8Array(videoArrayBuffer);
+      const videoBytes = new Uint8Array(await finalVideoBlob.arrayBuffer());
       const videoBlob = ExternalBlob.fromBytes(videoBytes).withUploadProgress((percentage) => {
         setUploadProgress(percentage);
       });
 
       let thumbnailBlob: ExternalBlob | null = null;
       if (thumbnailFile) {
-        const thumbnailArrayBuffer = await thumbnailFile.arrayBuffer();
-        const thumbnailBytes = new Uint8Array(thumbnailArrayBuffer);
+        const thumbnailBytes = new Uint8Array(await thumbnailFile.arrayBuffer());
+        thumbnailBlob = ExternalBlob.fromBytes(thumbnailBytes);
+      } else if (selectedThumbnailIndex !== null) {
+        const response = await fetch(generatedThumbnails[selectedThumbnailIndex]);
+        const blob = await response.blob();
+        const thumbnailBytes = new Uint8Array(await blob.arrayBuffer());
         thumbnailBlob = ExternalBlob.fromBytes(thumbnailBytes);
       }
 
-      await uploadVideo.mutateAsync({
+      await uploadMutation.mutateAsync({
         title: title.trim(),
         description: description.trim(),
         videoBlob,
@@ -187,287 +296,279 @@ export default function UploadPage({ onUploadSuccess, preselectedVideo, initialM
         tags,
       });
 
-      // Reset form
+      setVideoFile(null);
+      setVideoPreviewUrl(null);
       setTitle('');
       setDescription('');
-      setVideoFile(null);
-      setThumbnailFile(null);
       setTags([]);
+      setThumbnailFile(null);
+      setThumbnailPreviewUrl(null);
+      setSelectedThumbnailIndex(null);
+      setGeneratedThumbnails([]);
       setUploadProgress(0);
-      setThumbnailPreview(null);
       setEnableTrim(false);
-      setTrimStart(0);
-      setTrimEnd(0);
-      setVideoDuration(0);
 
-      onUploadSuccess();
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+      if (onUploadComplete) {
+        onUploadComplete();
+      }
     } catch (error: any) {
-      setUploadProgress(0);
+      console.error('Upload error:', error);
+      // Error already shown by mutation or validation
+    } finally {
       setIsTrimming(false);
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="max-w-4xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upload Video</CardTitle>
-          </CardHeader>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">Please log in to upload videos</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!hasActiveSubscription) {
-    return (
-      <div className="max-w-4xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upload Video</CardTitle>
-          </CardHeader>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground mb-4">
-              You need an active subscription to upload videos
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Subscribe to unlock video uploads and other premium features
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="container max-w-4xl py-8 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Upload className="h-8 w-8 text-primary" />
+            Upload Video
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Share your content with the community
+          </p>
+        </div>
+        <Badge variant="secondary" className="flex items-center gap-1">
+          <Crown className="h-4 w-4" />
+          Premium
+        </Badge>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Upload Video</CardTitle>
+          <CardTitle>Video File</CardTitle>
+          <CardDescription>Select a video file to upload</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Video File Selection */}
-          <div>
-            <Label htmlFor="video">Video File *</Label>
-            <div className="mt-2 space-y-2">
-              {!preselectedVideo && (
-                <>
-                  <input
-                    ref={videoInputRef}
-                    id="video"
-                    type="file"
-                    accept="video/*"
-                    onChange={handleVideoSelect}
-                    className="hidden"
-                  />
-                  <Button
-                    variant="outline"
-                    onClick={() => videoInputRef.current?.click()}
-                    className="w-full"
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Choose Video File
-                  </Button>
-                </>
-              )}
-              {videoFile && (
-                <div className="text-sm text-muted-foreground">
-                  Selected: {videoFile.name}
-                  {preselectedVideo && (
-                    <Badge variant="secondary" className="ml-2">AI Generated</Badge>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="videoFile">Video File *</Label>
+            <Input
+              ref={fileInputRef}
+              id="videoFile"
+              type="file"
+              accept="video/*"
+              onChange={handleFileSelect}
+              disabled={!!prefilledVideo}
+            />
+          </div>
+
+          {videoPreviewUrl && (
+            <div className="space-y-4">
+              <div className="border rounded-lg overflow-hidden bg-black">
+                <video
+                  ref={videoRef}
+                  src={videoPreviewUrl}
+                  controls
+                  className="w-full"
+                  style={{ maxHeight: '400px' }}
+                />
+              </div>
+
+              {!prefilledVideo && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="enableTrim"
+                      checked={enableTrim}
+                      onChange={(e) => setEnableTrim(e.target.checked)}
+                      className="h-4 w-4"
+                    />
+                    <Label htmlFor="enableTrim" className="flex items-center gap-2 cursor-pointer">
+                      <Scissors className="h-4 w-4" />
+                      Enable video trimming
+                    </Label>
+                  </div>
+
+                  {enableTrim && (
+                    <div className="space-y-4 p-4 border rounded-lg">
+                      <div className="space-y-2">
+                        <Label>
+                          Start Time: {trimStart[0].toFixed(1)}s
+                        </Label>
+                        <Slider
+                          value={trimStart}
+                          onValueChange={setTrimStart}
+                          min={0}
+                          max={videoDuration}
+                          step={0.1}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>
+                          End Time: {trimEnd[0].toFixed(1)}s
+                        </Label>
+                        <Slider
+                          value={trimEnd}
+                          onValueChange={setTrimEnd}
+                          min={0}
+                          max={videoDuration}
+                          step={0.1}
+                        />
+                      </div>
+
+                      <p className="text-sm text-muted-foreground">
+                        Trimmed duration: {(trimEnd[0] - trimStart[0]).toFixed(1)}s
+                      </p>
+                    </div>
                   )}
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Video Trim (optional) */}
-          {videoFile && videoDuration > 0 && !preselectedVideo && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="enableTrim"
-                  checked={enableTrim}
-                  onChange={(e) => setEnableTrim(e.target.checked)}
-                  className="rounded"
-                />
-                <Label htmlFor="enableTrim" className="cursor-pointer">
-                  <Scissors className="inline mr-1 h-4 w-4" />
-                  Enable video trimming
-                </Label>
-              </div>
-              {enableTrim && (
-                <div className="space-y-2 pl-6">
-                  <div>
-                    <Label htmlFor="trimStart">Start time (seconds)</Label>
-                    <Input
-                      id="trimStart"
-                      type="number"
-                      min={0}
-                      max={videoDuration}
-                      value={trimStart}
-                      onChange={(e) => setTrimStart(Number(e.target.value))}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="trimEnd">End time (seconds)</Label>
-                    <Input
-                      id="trimEnd"
-                      type="number"
-                      min={trimStart}
-                      max={videoDuration}
-                      value={trimEnd}
-                      onChange={(e) => setTrimEnd(Number(e.target.value))}
-                      className="mt-1"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Duration: {videoDuration.toFixed(1)}s | Trim: {trimStart.toFixed(1)}s - {trimEnd.toFixed(1)}s
-                  </p>
-                </div>
-              )}
-            </div>
           )}
+        </CardContent>
+      </Card>
 
-          {/* Title */}
-          <div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Video Details</CardTitle>
+          <CardDescription>Add information about your video</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Content Policy:</strong> Sexually explicit content is not permitted. Please ensure your video metadata (title, description, tags) complies with our community guidelines.
+            </AlertDescription>
+          </Alert>
+
+          <div className="space-y-2">
             <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
+              placeholder="Enter video title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter video title"
-              className="mt-1"
             />
           </div>
 
-          {/* Description */}
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
+              placeholder="Describe your video..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter video description"
-              rows={5}
-              className="mt-1"
+              rows={4}
             />
           </div>
 
-          {/* Thumbnail */}
-          <div>
-            <Label htmlFor="thumbnail">Thumbnail (optional)</Label>
-            <div className="mt-2 space-y-2">
-              <input
-                ref={thumbnailInputRef}
-                id="thumbnail"
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags</Label>
+            <div className="flex gap-2">
+              <Input
+                id="tags"
+                placeholder="Add a tag..."
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                  }
+                }}
+              />
+              <Button type="button" onClick={addTag} variant="outline">
+                Add
+              </Button>
+            </div>
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    {tag}
+                    <button
+                      onClick={() => removeTag(tag)}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {generatedThumbnails.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Thumbnail</CardTitle>
+            <CardDescription>Select or upload a thumbnail for your video</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-5 gap-2">
+              {generatedThumbnails.map((thumb, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleThumbnailSelect(index)}
+                  className={`border-2 rounded-lg overflow-hidden transition-all ${
+                    selectedThumbnailIndex === index
+                      ? 'border-primary ring-2 ring-primary'
+                      : 'border-muted hover:border-primary/50'
+                  }`}
+                >
+                  <img src={thumb} alt={`Thumbnail ${index + 1}`} className="w-full h-auto" />
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="customThumbnail">Or upload custom thumbnail</Label>
+              <Input
+                id="customThumbnail"
                 type="file"
                 accept="image/*"
-                onChange={handleThumbnailSelect}
-                className="hidden"
+                onChange={handleCustomThumbnail}
               />
-              <Button
-                variant="outline"
-                onClick={() => thumbnailInputRef.current?.click()}
-                className="w-full"
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                Choose Thumbnail
-              </Button>
-              {thumbnailPreview && (
-                <div className="w-64 h-36 bg-muted rounded overflow-hidden">
-                  <img
-                    src={thumbnailPreview}
-                    alt="Thumbnail preview"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
             </div>
-          </div>
 
-          {/* Tags */}
-          <div>
-            <Label htmlFor="tags">Tags</Label>
-            <div className="mt-2 space-y-2">
-              <div className="flex gap-2">
-                <Input
-                  id="tags"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddTag();
-                    }
-                  }}
-                  placeholder="Add a tag"
-                  className="flex-1"
-                />
-                <Button onClick={handleAddTag} variant="outline">
-                  Add
-                </Button>
+            {thumbnailPreviewUrl && (
+              <div className="border rounded-lg overflow-hidden max-w-xs">
+                <img src={thumbnailPreviewUrl} alt="Selected thumbnail" className="w-full h-auto" />
               </div>
-              {tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((tag, idx) => (
-                    <Badge key={idx} variant="secondary" className="text-sm">
-                      {tag}
-                      <button
-                        onClick={() => handleRemoveTag(tag)}
-                        className="ml-2 hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-          {/* Upload Progress */}
-          {uploadProgress > 0 && uploadProgress < 100 && (
+      {uploadProgress > 0 && uploadProgress < 100 && (
+        <Card>
+          <CardContent className="pt-6">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Uploading...</span>
                 <span>{uploadProgress}%</span>
               </div>
-              <Progress value={uploadProgress} />
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
             </div>
-          )}
+          </CardContent>
+        </Card>
+      )}
 
-          {/* Upload Button */}
-          <Button
-            onClick={handleUpload}
-            disabled={
-              !title.trim() ||
-              !videoFile ||
-              uploadVideo.isPending ||
-              isTrimming
-            }
-            className="w-full"
-            size="lg"
-          >
-            {uploadVideo.isPending || isTrimming ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                {isTrimming ? 'Processing...' : 'Uploading...'}
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-5 w-5" />
-                Upload Video
-              </>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
+      <Button
+        onClick={handleUpload}
+        disabled={!videoFile || !title.trim() || uploadMutation.isPending || isTrimming}
+        className="w-full"
+        size="lg"
+      >
+        <Upload className="mr-2 h-5 w-5" />
+        {isTrimming ? 'Trimming Video...' : uploadMutation.isPending ? 'Uploading...' : 'Upload Video'}
+      </Button>
     </div>
   );
 }

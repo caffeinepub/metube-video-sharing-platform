@@ -15,6 +15,7 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 import Stripe "stripe/stripe";
 import OutCall "http-outcalls/outcall";
+import Moderation "moderation";
 
 actor {
   type VideoId = Nat;
@@ -137,6 +138,13 @@ actor {
   public shared ({ caller }) func saveImage(image : SavedImage) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can save images");
+    };
+
+    switch (Moderation.moderateImageMetadata(image)) {
+      case (#flagged error) {
+        Runtime.trap(error);
+      };
+      case (#allowed) {};
     };
 
     let userImages = switch (savedImages.get(caller)) {
@@ -304,6 +312,20 @@ actor {
   ) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can upload videos");
+    };
+
+    // Moderate video metadata before upload
+    let videoMetadata = {
+      title = title;
+      description = description;
+      tags = tags;
+    };
+
+    switch (Moderation.moderateImageMetadata(videoMetadata)) {
+      case (#flagged error) {
+        Runtime.trap(error);
+      };
+      case (#allowed) {};
     };
 
     let video : Video = {
@@ -640,6 +662,20 @@ actor {
       Runtime.trap("Unauthorized: Only uploader or admin can update video metadata");
     };
 
+    // Moderate new metadata before updating
+    let newMetadata = {
+      title = newTitle;
+      description = newDescription;
+      tags = video.tags;
+    };
+
+    switch (Moderation.moderateImageMetadata(newMetadata)) {
+      case (#flagged error) {
+        Runtime.trap(error);
+      };
+      case (#allowed) {};
+    };
+
     let updatedVideo = {
       video with
       title = newTitle;
@@ -675,6 +711,20 @@ actor {
 
     if (caller != video.uploader and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only uploader or admin can update tags");
+    };
+
+    // Moderate new tags before updating
+    let newMetadata = {
+      title = video.title;
+      description = video.description;
+      tags = newTags;
+    };
+
+    switch (Moderation.moderateImageMetadata(newMetadata)) {
+      case (#flagged error) {
+        Runtime.trap(error);
+      };
+      case (#allowed) {};
     };
 
     let updatedVideo = {
@@ -961,6 +1011,13 @@ actor {
   public shared ({ caller }) func postMessage(sender : Text, message : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can post messages");
+    };
+
+    switch (Moderation.moderateChatMessage(message)) {
+      case (#flagged error) {
+        Runtime.trap(error);
+      };
+      case (#allowed) {};
     };
 
     let newMessage : ChatMessage = {

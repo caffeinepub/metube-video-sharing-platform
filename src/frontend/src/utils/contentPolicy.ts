@@ -1,15 +1,30 @@
-// Local content policy utilities
-// Note: Keyword-based blocking has been removed per user request
+/**
+ * Content policy utilities for AI generation guidance.
+ * 
+ * NOTE: This file provides permissive guidance for AI generation prompts.
+ * For upload/save metadata moderation, see uploadModeration.ts
+ */
 
-export function containsBlockedContent(text: string): boolean {
-  // No longer blocks content based on keywords
-  return false;
-}
-
+/**
+ * Returns a generic community guideline message for AI generation
+ */
 export function getContentPolicyMessage(): string {
-  return 'Please ensure your content follows community guidelines.';
+  return 'Please use AI generation features responsibly and in accordance with community guidelines.';
 }
 
-export function getContentPolicyNote(): string {
-  return 'Note: Please use AI generation features responsibly.';
+/**
+ * Validates AI generation prompts (permissive - no keyword blocking)
+ * Returns { allowed: true } for all prompts
+ */
+export function validateGenerationPrompt(prompt: string): { allowed: boolean; message?: string } {
+  // AI generation is permissive - no keyword blocking
+  return { allowed: true };
+}
+
+/**
+ * Legacy function for backward compatibility
+ * Always returns non-blocking result
+ */
+export function checkContentPolicy(text: string): { blocked: boolean; reason?: string } {
+  return { blocked: false };
 }

@@ -1,9 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Trash2, Eye, Image as ImageIcon } from 'lucide-react';
+import { Image, Trash2, ExternalLink, Download } from 'lucide-react';
 import { useGetSavedImages, useDeleteSavedImage } from '../../hooks/useQueries';
-import { Badge } from '@/components/ui/badge';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+import { downloadImageAsPNG, sanitizeFilename } from '../../utils/download';
 
 interface SavedImagesLibraryProps {
   onReopen: (imageUrl: string) => void;
@@ -16,17 +17,28 @@ export default function SavedImagesLibrary({ onReopen }: SavedImagesLibraryProps
   const handleDelete = async (imageUrl: string) => {
     try {
       await deleteImageMutation.mutateAsync(imageUrl);
-    } catch (error) {
+    } catch (error: any) {
       // Error already handled by mutation
+    }
+  };
+
+  const handleDownload = async (imageUrl: string, title: string) => {
+    try {
+      const filename = sanitizeFilename(title) || 'saved-image';
+      await downloadImageAsPNG(imageUrl, filename);
+      toast.success('Image downloaded successfully');
+    } catch (error: any) {
+      toast.error('Failed to download image');
     }
   };
 
   if (isLoading) {
     return (
       <Card>
-        <CardContent className="py-8">
-          <p className="text-center text-muted-foreground">Loading library...</p>
-        </CardContent>
+        <CardHeader>
+          <CardTitle>Saved Images Library</CardTitle>
+          <CardDescription>Loading your saved images...</CardDescription>
+        </CardHeader>
       </Card>
     );
   }
@@ -36,15 +48,13 @@ export default function SavedImagesLibrary({ onReopen }: SavedImagesLibraryProps
       <Card>
         <CardHeader>
           <CardTitle>Saved Images Library</CardTitle>
-          <CardDescription>
-            Your saved promo images will appear here
-          </CardDescription>
+          <CardDescription>Your saved promo images will appear here</CardDescription>
         </CardHeader>
-        <CardContent className="py-8">
-          <div className="text-center text-muted-foreground">
-            <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+        <CardContent>
+          <div className="text-center py-12 text-muted-foreground">
+            <Image className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No saved images yet</p>
-            <p className="text-sm">Create and save images to build your library</p>
+            <p className="text-sm mt-2">Create and save images from the Promo Creator</p>
           </div>
         </CardContent>
       </Card>
@@ -77,45 +87,55 @@ export default function SavedImagesLibrary({ onReopen }: SavedImagesLibraryProps
                     {image.description}
                   </p>
                 )}
-                {image.tags.length > 0 && (
+                {image.tags && image.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1">
-                    {image.tags.slice(0, 3).map((tag, tagIndex) => (
-                      <Badge key={tagIndex} variant="secondary" className="text-xs">
+                    {image.tags.slice(0, 3).map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="text-xs bg-muted px-2 py-1 rounded"
+                      >
                         {tag}
-                      </Badge>
+                      </span>
                     ))}
                   </div>
                 )}
-                <div className="flex gap-2 pt-2">
+                <div className="flex flex-wrap gap-2 pt-2">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => onReopen(image.imageUrl)}
-                    className="flex-1"
                   >
-                    <Eye className="mr-1 h-3 w-3" />
+                    <ExternalLink className="mr-1 h-3 w-3" />
                     Open
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDownload(image.imageUrl, image.title)}
+                  >
+                    <Download className="mr-1 h-3 w-3" />
+                    Download
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        disabled={deleteImageMutation.isPending}
-                      >
-                        <Trash2 className="h-3 w-3" />
+                      <Button size="sm" variant="outline">
+                        <Trash2 className="mr-1 h-3 w-3" />
+                        Delete
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Image</AlertDialogTitle>
+                        <AlertDialogTitle>Delete Image?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete "{image.title}"? This action cannot be undone.
+                          This will permanently delete "{image.title}" from your library.
+                          This action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(image.imageUrl)}>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(image.imageUrl)}
+                        >
                           Delete
                         </AlertDialogAction>
                       </AlertDialogFooter>

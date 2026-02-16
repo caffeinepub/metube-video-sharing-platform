@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T22:07:35.913Z",
+  "generatedAt": "2026-02-16T00:19:35.673Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -11,40 +11,50 @@
     "implemented": 3,
     "items": [
       {
-        "id": "REQ-49",
-        "summary": "Remove the current keyword-based content policy block that prevents AI video generation when the user’s prompt contains adult/sexual terms (e.g., the word \"sex\"), so that videos can still be generated.",
+        "id": "REQ-67",
+        "summary": "Add a clearly visible in-app “Install App” button entry point that complements the existing PWA install banner, so mobile users can intentionally trigger installation from within the UI.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/AiStudioPage.tsx"
+          "frontend/src/components/InstallAppAction.tsx",
+          "frontend/src/components/Header.tsx",
+          "frontend/src/components/Sidebar.tsx",
+          "frontend/src/hooks/usePwaInstallPrompt.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/AiStudioPage.tsx"
+          "frontend/src/components/InstallAppAction.tsx",
+          "frontend/src/components/Header.tsx",
+          "frontend/src/components/Sidebar.tsx",
+          "frontend/src/hooks/usePwaInstallPrompt.ts"
         ]
       },
       {
-        "id": "REQ-50",
-        "summary": "Update any AI Studio user-facing content policy UI/copy that currently states porn/explicit content is prohibited and will be rejected, so that it no longer claims generation will be blocked by keyword detection.",
+        "id": "REQ-68",
+        "summary": "Implement an iOS/Safari-friendly fallback for installation where the native install prompt is not available: show an in-app modal (or equivalent) with step-by-step English instructions to add metube.xyz to the home screen.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/AiStudioPage.tsx",
-          "frontend/src/utils/contentPolicy.ts"
+          "frontend/src/components/IosInstallInstructionsDialog.tsx",
+          "frontend/src/hooks/useInstallAppEntryPoint.ts",
+          "frontend/src/components/InstallAppAction.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/AiStudioPage.tsx",
-          "frontend/src/utils/contentPolicy.ts"
+          "frontend/src/components/IosInstallInstructionsDialog.tsx",
+          "frontend/src/hooks/useInstallAppEntryPoint.ts",
+          "frontend/src/components/InstallAppAction.tsx"
         ]
       },
       {
-        "id": "REQ-51",
-        "summary": "Update the local content policy utility so it no longer represents a hard-blocking rule for adult/sexual keywords (e.g., do not expose or use a function that treats \"sex\" and similar words as prohibited terms for AI generation).",
+        "id": "REQ-69",
+        "summary": "Ensure the existing PWA install banner and the new “Install App” entry point do not conflict: avoid showing redundant prompts at the same time and ensure dismissing one does not break the other.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/contentPolicy.ts",
-          "frontend/src/pages/AiStudioPage.tsx"
+          "frontend/src/components/PwaInstallBanner.tsx",
+          "frontend/src/hooks/usePwaInstallPrompt.ts",
+          "frontend/src/components/InstallAppAction.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/contentPolicy.ts",
-          "frontend/src/pages/AiStudioPage.tsx"
+          "frontend/src/components/PwaInstallBanner.tsx",
+          "frontend/src/hooks/usePwaInstallPrompt.ts",
+          "frontend/src/components/InstallAppAction.tsx"
         ]
       }
     ]
@@ -54,8 +64,13 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/AiStudioPage.tsx",
-    "frontend/src/utils/contentPolicy.ts",
+    "frontend/src/components/Header.tsx",
+    "frontend/src/components/InstallAppAction.tsx",
+    "frontend/src/components/IosInstallInstructionsDialog.tsx",
+    "frontend/src/components/PwaInstallBanner.tsx",
+    "frontend/src/components/Sidebar.tsx",
+    "frontend/src/hooks/useInstallAppEntryPoint.ts",
+    "frontend/src/hooks/usePwaInstallPrompt.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

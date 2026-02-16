@@ -2,10 +2,13 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-remove-the-current-keyword-based-content-policy-block-that-prevents-ai-video-generation-when-the-user-s-prompt-contains-adult-sexual-terms-e-g-the-word-sex-so-that-videos-can-still-be-generated",
-      "featureTitle": "Remove the current keyword-based content policy block that prevents AI video generation when the user’s prompt contains adult/sexual terms (e.g., the word \"sex\"), so that videos can still be generated.",
+      "featureId": "feature-add-a-clearly-visible-in-app-install-app-button-entry-point-that-complements-the-existing-pwa-install-banner-so-mobile-users-can-intentionally-trigger-installation-from-within-the-ui",
+      "featureTitle": "Add a clearly visible in-app “Install App” button entry point that complements the existing PWA install banner, so mobile users can intentionally trigger installation from within the UI.",
       "files": [
-        "frontend/src/pages/AiStudioPage.tsx"
+        "frontend/src/components/Header.tsx",
+        "frontend/src/components/InstallAppAction.tsx",
+        "frontend/src/components/Sidebar.tsx",
+        "frontend/src/hooks/usePwaInstallPrompt.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -19,16 +22,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-49"
+        "REQ-67"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-any-ai-studio-user-facing-content-policy-ui-copy-that-currently-states-porn-explicit-content-is-prohibited-and-will-be-rejected-so-that-it-no-longer-claims-generation-will-be-blocked-by-keyword-detection",
-      "featureTitle": "Update any AI Studio user-facing content policy UI/copy that currently states porn/explicit content is prohibited and will be rejected, so that it no longer claims generation will be blocked by keyword detection.",
+      "featureId": "feature-implement-an-ios-safari-friendly-fallback-for-installation-where-the-native-install-prompt-is-not-available-show-an-in-app-modal-or-equivalent-with-step-by-step-english-instructions-to-add-metube-xyz-to-the-home-screen",
+      "featureTitle": "Implement an iOS/Safari-friendly fallback for installation where the native install prompt is not available: show an in-app modal (or equivalent) with step-by-step English instructions to add metube.xyz to the home screen.",
       "files": [
-        "frontend/src/pages/AiStudioPage.tsx",
-        "frontend/src/utils/contentPolicy.ts"
+        "frontend/src/components/InstallAppAction.tsx",
+        "frontend/src/components/IosInstallInstructionsDialog.tsx",
+        "frontend/src/hooks/useInstallAppEntryPoint.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -42,16 +46,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-50"
+        "REQ-68"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-local-content-policy-utility-so-it-no-longer-represents-a-hard-blocking-rule-for-adult-sexual-keywords-e-g-do-not-expose-or-use-a-function-that-treats-sex-and-similar-words-as-prohibited-terms-for-ai-generation",
-      "featureTitle": "Update the local content policy utility so it no longer represents a hard-blocking rule for adult/sexual keywords (e.g., do not expose or use a function that treats \"sex\" and similar words as prohibited terms for AI generation).",
+      "featureId": "feature-ensure-the-existing-pwa-install-banner-and-the-new-install-app-entry-point-do-not-conflict-avoid-showing-redundant-prompts-at-the-same-time-and-ensure-dismissing-one-does-not-break-the-other",
+      "featureTitle": "Ensure the existing PWA install banner and the new “Install App” entry point do not conflict: avoid showing redundant prompts at the same time and ensure dismissing one does not break the other.",
       "files": [
-        "frontend/src/pages/AiStudioPage.tsx",
-        "frontend/src/utils/contentPolicy.ts"
+        "frontend/src/components/InstallAppAction.tsx",
+        "frontend/src/components/PwaInstallBanner.tsx",
+        "frontend/src/hooks/usePwaInstallPrompt.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -65,7 +70,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-51"
+        "REQ-69"
       ],
       "confidence": "high"
     }

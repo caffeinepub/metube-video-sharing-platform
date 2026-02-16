@@ -226,9 +226,9 @@ export default function App() {
       case 'upload':
         return (
           <UploadPage
-            onUploadSuccess={navigateToHome}
-            preselectedVideo={appState.generatedVideo}
-            initialMetadata={appState.uploadMetadata}
+            onUploadComplete={navigateToHome}
+            prefilledVideo={appState.generatedVideo ? { blob: appState.generatedVideo.file, url: appState.generatedVideo.previewUrl } : undefined}
+            prefilledMetadata={appState.uploadMetadata || undefined}
           />
         );
       case 'video':

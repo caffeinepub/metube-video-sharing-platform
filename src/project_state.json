@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 23,
+  "projectStateVersion": 33,
   "summary": "Expand MeTube/\"MeTube AI Studios\" to include AI-powered image generation and image-based promo creation using user-uploaded pictures, and consider launching/connecting a companion site/domain \"YouTubeMe.xyz\" (renamed from YouTubeMe.co) that is YouTube-like and connected to MeTube.",
   "architectural_notes": [
     "Introduce a payment-gated download flow (price point: $0.63) that restricts file downloads to users with a confirmed payment/entitlement.",
@@ -14,7 +14,9 @@
     "Auth UX note: MeTube sign-in uses Internet Identity only; add on-page copy clarifying no email/password/username and describing supported login methods (biometrics/security key).",
     "Scope expansion: add AI image generation and AI-assisted image editing/promo creation within “MeTube AI Studios” (in addition to video generation)."
   ],
-  "known_issues": [],
+  "known_issues": [
+    "Possible issue: AI image generation/promo workflow produces unexpected gendered outputs (e.g., returns a girl image vs man image) when the user includes terms like \"sex\" in the prompt."
+  ],
   "isFixRequest": false,
   "existing_features": [
     {
@@ -368,6 +370,142 @@
         "REQ-51"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-post-generation-management-actions-for-ai-generated-videos-in-metube-ai-studios-after-a-video-is-generated-allow-the-user-to-a-download-the-generated-video-file-locally-and-b-delete-discard-the-generated-output-from-the-current-session-without-uploading-it",
+      "title": "Add post-generation management actions for AI-generated videos in “MeTube AI Studios”: after a video is generated, allow the user to (a) download the generated video file locally and (b) delete/discard the generated output from the current session without uploading it.",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-download-delete-actions-for-ai-generated-images-in-metube-ai-studios-images-pictures-when-an-image-is-generated-allow-the-user-to-a-download-it-locally-and-b-delete-clear-the-generated-output-from-the-current-session",
+      "title": "Add download/delete actions for AI-generated images in “MeTube AI Studios” → “Images & Pictures”: when an image is generated, allow the user to (a) download it locally and (b) delete/clear the generated output from the current session.",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-download-action-for-items-in-the-saved-images-library-so-users-can-download-previously-saved-images-directly-from-the-library-grid-without-reopening-them-in-the-editor",
+      "title": "Add a download action for items in the Saved Images Library so users can download previously saved images directly from the library grid (without reopening them in the editor).",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enforce-a-no-sexually-explicit-content-uploads-policy-for-user-uploads-by-blocking-uploads-when-the-user-provided-metadata-title-description-tags-contains-sexually-explicit-content-show-a-clear-english-error-message-explaining-that-sexual-content-uploads-are-not-allowed",
+      "title": "Enforce a “no sexually explicit content uploads” policy for user uploads by blocking uploads when the user-provided metadata (title/description/tags) contains sexually explicit content; show a clear English error message explaining that sexual content uploads are not allowed.",
+      "reqIds": [
+        "REQ-55"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-upload-moderation-policy-as-a-dedicated-utility-that-does-not-re-introduce-keyword-blocking-for-ai-generation-prompts-keep-ai-generation-allowed-while-restricting-uploads-saving-based-on-metadata-policy",
+      "title": "Implement the upload moderation policy as a dedicated utility that does not re-introduce keyword blocking for AI generation prompts; keep AI generation allowed while restricting uploads/saving based on metadata policy.",
+      "reqIds": [
+        "REQ-56"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-client-side-validation-on-the-ai-chat-room-page-to-prevent-sending-messages-that-contain-sexually-explicit-terms-and-show-a-clear-english-error-toast-explaining-that-sexual-content-is-not-allowed-in-the-chat-room",
+      "title": "Add client-side validation on the AI Chat Room page to prevent sending messages that contain sexually explicit terms and show a clear English error toast explaining that sexual content is not allowed in the chat room.",
+      "reqIds": [
+        "REQ-58"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-ai-chat-room-ui-copy-to-clearly-communicate-the-rule-in-english-e-g-in-the-page-description-or-near-the-input-sexual-content-is-not-allowed-in-the-chat-room-also-ensure-that-when-the-backend-rejects-a-message-the-user-sees-the-backend-provided-error-text",
+      "title": "Update AI Chat Room UI copy to clearly communicate the rule in English (e.g., in the page description or near the input): sexual content is not allowed in the chat room; also ensure that when the backend rejects a message, the user sees the backend-provided error text.",
+      "reqIds": [
+        "REQ-59"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-metube-ai-studios-images-pictures-image-generation-workflow-to-avoid-unintended-gendered-outputs-when-the-user-s-prompt-includes-sexual-terms-e-g-the-word-sex-the-generated-result-should-not-change-gender-subject-selection-solely-because-a-sexual-keyword-appears-in-the-prompt",
+      "title": "Update the MeTube AI Studios → Images & Pictures image-generation workflow to avoid unintended gendered outputs when the user’s prompt includes sexual terms (e.g., the word \"sex\"). The generated result should not change gender/subject selection solely because a sexual keyword appears in the prompt.",
+      "reqIds": [
+        "REQ-60"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-explicit-subject-gender-control-to-the-ai-image-generation-ui-in-metube-ai-studios-images-pictures-so-users-can-choose-the-intended-subject-representation-e-g-neutral-woman-man-auto-ensure-all-labels-help-text-are-in-english",
+      "title": "Add an explicit subject gender control to the AI image generation UI in MeTube AI Studios → Images & Pictures, so users can choose the intended subject representation (e.g., Neutral, Woman, Man, Auto). Ensure all labels/help text are in English.",
+      "reqIds": [
+        "REQ-61"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-extend-the-client-side-image-generator-to-support-a-simple-deterministic-portrait-person-rendering-mode-that-can-reflect-the-selected-gender-control-neutral-woman-man-without-using-any-external-ai-services-the-rendering-should-remain-fully-on-device-canvas-and-deterministic-based-on-the-prompt-and-selected-options",
+      "title": "Extend the client-side image generator to support a simple, deterministic \"portrait/person\" rendering mode that can reflect the selected gender control (Neutral/Woman/Man) without using any external AI services. The rendering should remain fully on-device (Canvas) and deterministic based on the prompt and selected options.",
+      "reqIds": [
+        "REQ-62"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-that-any-prompt-parsing-used-for-gender-inference-in-auto-mode-does-not-treat-sexually-explicit-words-e-g-sex-and-the-existing-keyword-list-used-for-moderation-as-gender-signals-gender-inference-if-implemented-should-be-based-on-gendered-terms-e-g-woman-girl-man-boy-and-ignore-sexually-explicit-keywords",
+      "title": "Ensure that any prompt parsing used for gender inference in \"Auto\" mode does not treat sexually-explicit words (e.g., \"sex\", and the existing keyword list used for moderation) as gender signals. Gender inference (if implemented) should be based on gendered terms (e.g., \"woman\", \"girl\", \"man\", \"boy\") and ignore sexually-explicit keywords.",
+      "reqIds": [
+        "REQ-63"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-an-installable-progressive-web-app-pwa-experience-for-metube-xyz-so-users-can-add-it-to-their-home-screen-and-use-it-like-a-mobile-app",
+      "title": "Implement an installable Progressive Web App (PWA) experience for metube.xyz so users can add it to their home screen and use it like a mobile app.",
+      "reqIds": [
+        "REQ-64"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-lightweight-in-app-install-prompt-entry-point-for-mobile-users-when-the-browser-supports-pwa-installation-using-clear-english-copy",
+      "title": "Add a lightweight in-app install prompt entry point for mobile users when the browser supports PWA installation, using clear English copy.",
+      "reqIds": [
+        "REQ-65"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-polish-key-mobile-ux-behaviors-to-feel-app-like-improve-touch-targets-ensure-navigation-is-usable-one-handed-and-prevent-common-mobile-layout-issues-across-existing-pages-home-video-player-upload-discover-metube-ai-studios-ai-chat-room",
+      "title": "Polish key mobile UX behaviors to feel app-like: improve touch targets, ensure navigation is usable one-handed, and prevent common mobile layout issues across existing pages (Home, Video Player, Upload, Discover, MeTube AI Studios, AI Chat Room).",
+      "reqIds": [
+        "REQ-66"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-clearly-visible-in-app-install-app-button-entry-point-that-complements-the-existing-pwa-install-banner-so-mobile-users-can-intentionally-trigger-installation-from-within-the-ui",
+      "title": "Add a clearly visible in-app “Install App” button entry point that complements the existing PWA install banner, so mobile users can intentionally trigger installation from within the UI.",
+      "reqIds": [
+        "REQ-67"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-an-ios-safari-friendly-fallback-for-installation-where-the-native-install-prompt-is-not-available-show-an-in-app-modal-or-equivalent-with-step-by-step-english-instructions-to-add-metube-xyz-to-the-home-screen",
+      "title": "Implement an iOS/Safari-friendly fallback for installation where the native install prompt is not available: show an in-app modal (or equivalent) with step-by-step English instructions to add metube.xyz to the home screen.",
+      "reqIds": [
+        "REQ-68"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-existing-pwa-install-banner-and-the-new-install-app-entry-point-do-not-conflict-avoid-showing-redundant-prompts-at-the-same-time-and-ensure-dismissing-one-does-not-break-the-other",
+      "title": "Ensure the existing PWA install banner and the new “Install App” entry point do not conflict: avoid showing redundant prompts at the same time and ensure dismissing one does not break the other.",
+      "reqIds": [
+        "REQ-69"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -570,6 +708,46 @@
       "summary": "Allow AI image/video generation even when prompts contain adult/sexual words (remove/relax the current pornographic-content keyword block).",
       "reqIds": [],
       "status": "blocked"
+    },
+    {
+      "id": "AR-44",
+      "summary": "Add post-generation management actions for generated videos/images: allow users to download and delete their generated outputs.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-45",
+      "summary": "Enforce an upload content policy that blocks users from uploading sexually explicit content (no sexual content uploads).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-46",
+      "summary": "Enforce a no sexually explicit content policy in the AI Chat Room: block/disable posting sexual content in chat messages and show a clear English message explaining sexual content is not allowed in the chatroom.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-47",
+      "summary": "Enforce a no-sexually-explicit-content policy for AI Chat Room messages on the backend: when a user attempts to post a chat message containing sexually explicit terms, reject the request and return a clear English error message stating that sexual content is not allowed in the chat room.",
+      "reqIds": [
+        "REQ-57"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-48",
+      "summary": "Create a mobile app version of MeTube/metube.xyz (mobile client).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-49",
+      "summary": "Add an in-app “Install App” button/prompt to make the metube.xyz PWA installation clearer for mobile users.",
+      "reqIds": [
+        "REQ-65"
+      ],
+      "status": "in_progress"
     }
   ],
   "gameProjectType": "none",

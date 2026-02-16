@@ -1,49 +1,41 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T22:07:35.909Z",
-  "summary": "Diff clearly updates the local content policy utility to no longer block on keywords, but the provided AiStudioPage diff is truncated, so it’s not possible to confirm that video generation no longer triggers the prohibited-content toast or that all related UI/copy was updated. Two modified meta/state files appear unrelated to the requested changes.",
+  "generatedAt": "2026-02-16T00:19:35.668Z",
+  "summary": "Implemented a new in-app “Install App” entry point (InstallAppAction) placed in the UI (Header/Sidebar), plus an iOS/Safari fallback modal with step-by-step instructions. Updated shared PWA install state via a zustand-backed hook and adjusted the existing PWA install banner behavior. Main gap: the new entry point can appear at the same time as the existing install banner, which may violate the non-conflict requirement.",
   "missing_requirements": [
     {
-      "id": "REQ-49",
-      "requirement": "Remove the keyword-based content policy block that prevents AI video generation when prompts contain adult/sexual terms (e.g., \"sex\"), so generation proceeds normally and no prohibited-content toast is shown.",
-      "reason": "The diff shows contentPolicy utilities now always return false, but the AiStudioPage.tsx changes are truncated and do not show removal of any callsites (e.g., containsBlockedContent checks) or removal of the prohibited-content error toast in the video generation flow.",
+      "id": "REQ-69",
+      "requirement": "Ensure the existing PWA install banner and the new “Install App” entry point do not conflict: avoid showing redundant prompts at the same time and ensure dismissing one does not break the other.",
+      "reason": "The new InstallAppAction renders whenever the app is not installed, while PwaInstallBanner renders when installable and not dismissed. This means both prompts can appear simultaneously (redundant install surfaces at the same time), which conflicts with the requirement to avoid redundant prompts.",
       "evidence": [
-        "frontend/src/pages/AiStudioPage.tsx (truncated)",
-        "frontend/src/utils/contentPolicy.ts"
+        "frontend/src/components/InstallAppAction.tsx (shouldShowInstallAction = !isInstalled)",
+        "frontend/src/components/PwaInstallBanner.tsx (renders when !isInstalled && isInstallable && !bannerDismissed)",
+        "frontend/src/hooks/useInstallAppEntryPoint.ts (shouldShowInstallAction = !isInstalled)"
       ]
     },
     {
-      "id": "REQ-50",
-      "requirement": "Update AI Studio user-facing content policy UI/copy so it no longer claims porn/explicit content prompts will be rejected/blocked by keyword detection (English only).",
-      "reason": "No explicit UI/copy changes are visible in the provided truncated AiStudioPage.tsx snippet, and contentPolicy.ts only provides generic messages without showing where/if existing prohibitive wording in the Video Generation card was removed.",
+      "id": "REQ-67",
+      "requirement": "All user-facing text is in English and uses the metube.xyz name.",
+      "reason": "Some install-related UI text does not include the metube.xyz name (e.g., the in-app entry point label is just “Install App”). The banner and iOS dialog use metube.xyz, but the requirement states user-facing text uses the metube.xyz name.",
       "evidence": [
-        "frontend/src/pages/AiStudioPage.tsx (truncated)",
-        "frontend/src/utils/contentPolicy.ts"
+        "frontend/src/components/InstallAppAction.tsx (button/menu label: \"Install App\")",
+        "frontend/src/components/PwaInstallBanner.tsx (\"Install metube.xyz\")",
+        "frontend/src/components/IosInstallInstructionsDialog.tsx (\"Install metube.xyz\" and other mentions)"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Updated/added broad frontend file summaries content.",
-      "reason": "Modifying a repository-wide summary file is not requested by REQ-49/50/51 and is not necessary to remove keyword blocking or update AI Studio copy.",
-      "evidence": [
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "description": "Updated project_state.json project summary/state unrelated to content-policy keyword blocking.",
-      "reason": "Changing project state metadata is not part of the requested frontend-only content-policy adjustments.",
-      "evidence": [
-        "project_state.json"
-      ]
-    }
-  ],
-  "confidence": 0.55,
+  "hallucinated_features": [],
+  "confidence": 0.74,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/pages/AiStudioPage.tsx",
-    "frontend/src/utils/contentPolicy.ts",
+    "frontend/src/components/Header.tsx",
+    "frontend/src/components/InstallAppAction.tsx",
+    "frontend/src/components/IosInstallInstructionsDialog.tsx",
+    "frontend/src/components/PwaInstallBanner.tsx",
+    "frontend/src/components/Sidebar.tsx",
+    "frontend/src/hooks/useInstallAppEntryPoint.ts",
+    "frontend/src/hooks/usePwaInstallPrompt.ts",
     "project_state.json"
   ]
 }

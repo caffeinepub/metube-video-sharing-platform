@@ -11,3 +11,12 @@ export function validateNoExternalCalls(): boolean {
   // Could be extended to monitor network activity in development
   return true;
 }
+
+/**
+ * Explicitly documents that image generation (including portrait mode)
+ * is performed entirely on-device using Canvas rendering.
+ * No network calls are made to external AI services.
+ */
+export function ensureImageGenerationIsLocal(): void {
+  ensureLocalOnly('Image Generation (all styles including portrait)');
+}

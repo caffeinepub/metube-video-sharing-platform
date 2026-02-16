@@ -9,6 +9,7 @@ import { useState, FormEvent } from 'react';
 import { SubscriptionStatus } from '../backend';
 import type { Page } from '../App';
 import InternetIdentityHelpDialog from './InternetIdentityHelpDialog';
+import InstallAppAction from './InstallAppAction';
 
 interface HeaderProps {
   currentPage: Page;
@@ -78,13 +79,13 @@ export default function Header({
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 safe-top">
+        <div className="flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="md:hidden h-10 w-10 touch-target"
               onClick={onSidebarToggle}
             >
               <Menu className="h-5 w-5" />
@@ -92,19 +93,19 @@ export default function Header({
 
             <button
               onClick={onNavigateHome}
-              className="flex items-center gap-2 transition-opacity hover:opacity-80"
+              className="flex items-center gap-2 transition-opacity hover:opacity-80 touch-target"
             >
               <img
                 src="/assets/generated/metube-xyz-logo.dim_200x80.png"
                 alt="metube.xyz"
-                className="h-8"
+                className="h-6 sm:h-8"
               />
             </button>
           </div>
 
           <form
             onSubmit={handleSearch}
-            className="hidden flex-1 max-w-2xl mx-8 md:flex"
+            className="hidden flex-1 max-w-2xl mx-4 sm:mx-8 md:flex"
           >
             <div className="relative w-full">
               <Input
@@ -125,7 +126,9 @@ export default function Header({
             </div>
           </form>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <InstallAppAction variant="button" />
+
             {isAuthenticated && (
               <>
                 {hasActiveSubscription ? (
@@ -142,7 +145,7 @@ export default function Header({
                     variant="default"
                     size="sm"
                     onClick={onNavigateSubscription}
-                    className="hidden sm:flex"
+                    className="hidden sm:flex touch-target"
                   >
                     <Crown className="mr-2 h-4 w-4" />
                     Subscribe
@@ -154,7 +157,7 @@ export default function Header({
                     variant="outline"
                     size="sm"
                     onClick={onNavigateUpload}
-                    className="hidden sm:flex"
+                    className="hidden sm:flex touch-target"
                   >
                     <Upload className="mr-2 h-4 w-4" />
                     Upload
@@ -168,18 +171,19 @@ export default function Header({
               disabled={disabled}
               size="sm"
               variant={isAuthenticated ? 'outline' : 'default'}
+              className="touch-target"
             >
               {loginStatus === 'logging-in' ? (
-                'Logging in...'
+                <span className="text-xs sm:text-sm">Logging in...</span>
               ) : isAuthenticated ? (
                 <>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                  <LogOut className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Logout</span>
                 </>
               ) : (
                 <>
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Login
+                  <LogIn className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Login</span>
                 </>
               )}
             </Button>

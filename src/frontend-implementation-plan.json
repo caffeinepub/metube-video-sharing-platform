@@ -1,60 +1,89 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Remove adult-keyword blocking in MeTube AI Studios prompts",
+  "title": "Add an in-app Install App action with iOS fallback instructions for metube.xyz PWA",
   "requirements": [
     {
-      "id": "REQ-49",
-      "summary": "Remove keyword-based blocking so prompts containing adult/sexual terms (e.g., \"sex\") do not prevent AI video generation.",
+      "id": "REQ-67",
+      "summary": "Add a discoverable in-app “Install App” action that triggers the native install prompt when available and hides when already installed.",
       "acceptanceCriteria": [
-        "In MeTube AI Studios > Video Generation, entering a prompt that contains the word \"sex\" does not block generation and does not show the current prohibited-content error toast.",
-        "Video generation proceeds normally (subject to authentication and remaining generation time limits) even if the prompt contains previously-blocked keywords."
+        "When the app is not installed and installation is available, the UI shows an “Install App” action in a discoverable location (e.g., header overflow/menu, sidebar, or footer).",
+        "Clicking “Install App” triggers the native install prompt on browsers that support `beforeinstallprompt`.",
+        "The “Install App” action is hidden/disabled when the app is already installed (standalone display mode).",
+        "All user-facing text is in English and uses the metube.xyz name."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/AiStudioPage.tsx",
+          "path": "frontend/src/components/InstallAppAction.tsx",
+          "operation": "create",
+          "description": "Create a reusable Install App UI action (button/menu-row style) that uses shared install state to (a) trigger the native install prompt when available and (b) defer to iOS instructions when not. Keep all user-facing text in English and reference metube.xyz."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
           "operation": "modify",
-          "description": "Remove the pre-generation hard stop that calls containsBlockedContent(quote) and shows the prohibited-content toast; generation should proceed normally while keeping existing authentication and remaining-time checks intact."
+          "description": "Wire the new Install App action into a highly discoverable location in the header (e.g., right-side action group) and ensure it is hidden/disabled when the app is already installed."
+        },
+        {
+          "path": "frontend/src/components/Sidebar.tsx",
+          "operation": "modify",
+          "description": "Add an “Install App” navigation/action item in the sidebar (visible only when not installed) to provide an additional discoverable entry point on mobile."
+        },
+        {
+          "path": "frontend/src/hooks/usePwaInstallPrompt.ts",
+          "operation": "modify",
+          "description": "Refactor to a shared/singleton store so multiple UI surfaces (banner + install action) observe the same installability/installed state, and so triggering the prompt works reliably from the in-app action."
         }
       ]
     },
     {
-      "id": "REQ-50",
-      "summary": "Update AI Studio content policy UI/copy so it no longer claims generation will be blocked by keyword detection for porn/explicit terms.",
+      "id": "REQ-68",
+      "summary": "Provide an iOS/Safari fallback modal with step-by-step Add to Home Screen instructions when the native install prompt is unavailable.",
       "acceptanceCriteria": [
-        "The Video Generation card no longer displays messaging that says prompts will be rejected due to banned keywords.",
-        "All updated user-facing text is in English."
+        "On platforms where `beforeinstallprompt` is not available but the app is not installed, clicking “Install App” shows an instruction UI rather than doing nothing.",
+        "The instruction UI includes clear steps (e.g., “Open the Share menu” → “Tap ‘Add to Home Screen’”).",
+        "The instruction UI can be dismissed and does not block normal navigation."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/AiStudioPage.tsx",
-          "operation": "modify",
-          "description": "Update the Video Generation card's Content Policy alert copy to remove statements about banned keywords being rejected/blocked; keep copy in English and align it with the updated non-keyword-blocking behavior."
+          "path": "frontend/src/components/IosInstallInstructionsDialog.tsx",
+          "operation": "create",
+          "description": "Create a dismissible modal/dialog component with step-by-step English instructions for installing metube.xyz on iOS Safari (Share button → Add to Home Screen). Use existing UI primitives from frontend/src/components/ui (compose only; do not modify)."
         },
         {
-          "path": "frontend/src/utils/contentPolicy.ts",
+          "path": "frontend/src/hooks/useInstallAppEntryPoint.ts",
+          "operation": "create",
+          "description": "Add a small composition hook that determines (1) whether to show the Install App action, (2) whether to call the native prompt, and (3) when to open the iOS instructions dialog based on install prompt availability and standalone display mode."
+        },
+        {
+          "path": "frontend/src/components/InstallAppAction.tsx",
           "operation": "modify",
-          "description": "Update any user-facing message helpers (e.g., getContentPolicyMessage/getContentPolicyNote) so they do not claim prompts are rejected due to prohibited terms/keyword detection."
+          "description": "Wire the iOS instructions dialog into the Install App action so that on platforms without `beforeinstallprompt` (and not installed), clicking “Install App” opens the instruction UI instead of doing nothing."
         }
       ]
     },
     {
-      "id": "REQ-51",
-      "summary": "Adjust the local content policy utility so it no longer implements or exposes a hard-blocking adult/sexual keyword rule for AI generation.",
+      "id": "REQ-69",
+      "summary": "Prevent conflicts between the existing PWA install banner and the new Install App entry point; ensure dismissal/install updates both without errors.",
       "acceptanceCriteria": [
-        "The app no longer uses the existing blocked-keywords list to prevent AI generation based on adult/sexual terms.",
-        "No runtime errors occur from removing/adjusting the content policy helper usage in MeTube AI Studios."
+        "If the user dismisses the install banner, the separate “Install App” entry point still works.",
+        "If the user installs the app successfully, both the banner and the “Install App” entry point stop appearing without requiring a refresh.",
+        "No console errors occur when interacting with either install surface."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/contentPolicy.ts",
+          "path": "frontend/src/components/PwaInstallBanner.tsx",
           "operation": "modify",
-          "description": "Remove or neutralize the adult/sexual BLOCKED_KEYWORDS-based detection (e.g., eliminate the list and ensure containsBlockedContent no longer treats words like \"sex\" as prohibited) while preserving a safe, non-breaking API shape for any remaining imports."
+          "description": "Adjust banner dismissal behavior so dismissing the banner hides only the banner surface (not the underlying install prompt availability), ensuring the separate Install App entry point still works. Also ensure banner reacts immediately to successful installation state changes."
         },
         {
-          "path": "frontend/src/pages/AiStudioPage.tsx",
+          "path": "frontend/src/hooks/usePwaInstallPrompt.ts",
           "operation": "modify",
-          "description": "Remove now-unneeded imports/usages of contentPolicy blocking helpers (containsBlockedContent/getContentPolicyMessage) so there are no runtime or build errors after the utility is adjusted."
+          "description": "Ensure the shared install store updates all subscribers on `appinstalled` and standalone display-mode detection changes, so the banner and Install App action both stop appearing immediately after installation without requiring a refresh. Add defensive checks to avoid console errors when prompt is unavailable."
+        },
+        {
+          "path": "frontend/src/components/InstallAppAction.tsx",
+          "operation": "modify",
+          "description": "Ensure the Install App action listens to the shared installed/installable state so it disappears immediately after install, and gracefully handles cases where prompt state changes (e.g., banner dismissed, prompt consumed) without console errors."
         }
       ]
     }

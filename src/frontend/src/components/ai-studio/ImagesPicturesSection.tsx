@@ -6,13 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Image, Sparkles, Upload, Save, Palette } from 'lucide-react';
+import { Image, Sparkles, Upload, Save, Palette, Download, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { generateImage, type ImageStyle } from '../../utils/aiImageGenerator';
+import { generateImage, type ImageStyle, type SubjectGender } from '../../utils/aiImageGenerator';
 import { ensureLocalOnly } from '../../utils/networkGuards';
 import PromoCreatorCanvas from './PromoCreatorCanvas';
 import SavedImagesLibrary from './SavedImagesLibrary';
 import { useSaveImage } from '../../hooks/useQueries';
+import { downloadDataUrlAsPNG, generateFilenameWithTimestamp } from '../../utils/download';
+import { validateUploadMetadata } from '../../utils/uploadModeration';
 
 export default function ImagesPicturesSection() {
   const [activeTab, setActiveTab] = useState<'generate' | 'promo' | 'library'>('generate');
@@ -20,6 +22,7 @@ export default function ImagesPicturesSection() {
   // Generation state
   const [prompt, setPrompt] = useState('');
   const [style, setStyle] = useState<ImageStyle>('poster');
+  const [subjectGender, setSubjectGender] = useState<SubjectGender>('auto');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -68,6 +71,7 @@ export default function ImagesPicturesSection() {
       const imageUrl = await generateImage({
         prompt: prompt.trim(),
         style,
+        subjectGender,
         width: 1024,
         height: 1024,
         onProgress: setGenerationProgress,
@@ -85,7 +89,32 @@ export default function ImagesPicturesSection() {
     }
   };
 
+  const handleDownloadGeneratedImage = () => {
+    if (!generatedImage) return;
+
+    try {
+      const filename = generateFilenameWithTimestamp('metube-ai-image', 'png');
+      downloadDataUrlAsPNG(generatedImage, filename);
+      toast.success('Image downloaded successfully');
+    } catch (error: any) {
+      toast.error('Failed to download image');
+    }
+  };
+
+  const handleDeleteGeneratedImage = () => {
+    setGeneratedImage(null);
+    setPromoImage(null);
+    toast.success('Generated image cleared');
+  };
+
   const handleSaveToLibrary = async (imageUrl: string, title: string, description: string, tags: string[]) => {
+    // Validate metadata before saving
+    const validation = validateUploadMetadata({ title, description, tags });
+    if (!validation.allowed) {
+      toast.error(validation.error || 'Content not allowed');
+      throw new Error(validation.error);
+    }
+
     try {
       await saveImageMutation.mutateAsync({
         imageUrl,
@@ -95,7 +124,8 @@ export default function ImagesPicturesSection() {
       });
       toast.success('Image saved to library');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save image');
+      // Error already shown by mutation or validation
+      throw error;
     }
   };
 
@@ -150,6 +180,7 @@ export default function ImagesPicturesSection() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="portrait">Portrait</SelectItem>
                     <SelectItem value="poster">Poster</SelectItem>
                     <SelectItem value="gradient">Gradient</SelectItem>
                     <SelectItem value="minimal">Minimal</SelectItem>
@@ -158,53 +189,97 @@ export default function ImagesPicturesSection() {
                 </Select>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="subjectGender">Subject Gender</Label>
+                <Select value={subjectGender} onValueChange={(val) => setSubjectGender(val as SubjectGender)}>
+                  <SelectTrigger id="subjectGender">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Auto (detect from prompt)</SelectItem>
+                    <SelectItem value="neutral">Neutral</SelectItem>
+                    <SelectItem value="woman">Woman</SelectItem>
+                    <SelectItem value="man">Man</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Controls subject representation in portrait style. Auto mode detects gender from prompt terms like "woman" or "man" (ignoring explicit keywords).
+                </p>
+              </div>
+
+              {isGenerating && (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Generating...</span>
+                    <span>{generationProgress}%</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary transition-all"
+                      style={{ width: `${generationProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
               <Button
                 onClick={handleGenerate}
                 disabled={isGenerating || !prompt.trim()}
                 className="w-full"
               >
                 <Sparkles className="mr-2 h-4 w-4" />
-                {isGenerating ? `Generating... ${generationProgress}%` : 'Generate Image'}
+                {isGenerating ? 'Generating...' : 'Generate Image'}
               </Button>
+            </CardContent>
+          </Card>
 
-              {generatedImage && (
-                <div className="space-y-2">
-                  <Label>Generated Image</Label>
-                  <div className="border rounded-lg overflow-hidden">
-                    <img
-                      src={generatedImage}
-                      alt="Generated"
-                      className="w-full h-auto"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => {
-                      setPromoImage(generatedImage);
-                      setActiveTab('promo');
-                    }}
-                    variant="outline"
-                    className="w-full"
-                  >
+          {generatedImage && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Generated Image</CardTitle>
+                <CardDescription>
+                  Your image is ready! Download it or edit in Promo Creator.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="border rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={generatedImage}
+                    alt="Generated"
+                    className="w-full h-auto"
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button onClick={handleDownloadGeneratedImage} variant="outline">
+                    <Download className="mr-2 h-4 w-4" />
+                    Download PNG
+                  </Button>
+                  <Button onClick={handleDeleteGeneratedImage} variant="outline">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
+                  <Button onClick={() => setActiveTab('promo')} variant="default">
                     <Palette className="mr-2 h-4 w-4" />
                     Edit in Promo Creator
                   </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>
               <CardTitle>Upload Image</CardTitle>
               <CardDescription>
-                Upload your own image to use in the promo creator
+                Upload your own image to edit in Promo Creator
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="upload">Select Image</Label>
+                <Label htmlFor="fileUpload">Select Image File</Label>
                 <Input
-                  id="upload"
+                  id="fileUpload"
                   type="file"
                   accept="image/*"
                   onChange={handleFileUpload}
@@ -212,15 +287,12 @@ export default function ImagesPicturesSection() {
               </div>
 
               {uploadedImage && (
-                <div className="space-y-2">
-                  <Label>Uploaded Image</Label>
-                  <div className="border rounded-lg overflow-hidden max-h-64">
-                    <img
-                      src={uploadedImage}
-                      alt="Uploaded"
-                      className="w-full h-auto"
-                    />
-                  </div>
+                <div className="border rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={uploadedImage}
+                    alt="Uploaded"
+                    className="w-full h-auto max-h-64 object-contain"
+                  />
                 </div>
               )}
             </CardContent>

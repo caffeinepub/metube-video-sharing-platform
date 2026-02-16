@@ -8,13 +8,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Clock, Zap, AlertCircle, Crown, Image } from 'lucide-react';
+import { Sparkles, Clock, Zap, AlertCircle, Crown, Image, Download, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { generateVideo, type GeneratedVideo } from '../utils/aiVideoGenerator';
 import { fetchImageFromUrl } from '../utils/fetchImageFromUrl';
 import ImagesPicturesSection from '../components/ai-studio/ImagesPicturesSection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { downloadBlob, generateFilenameWithTimestamp, sanitizeFilename } from '../utils/download';
 
 interface AiStudioPageProps {
   onNavigateToUpload: (video: GeneratedVideo, metadata: { title: string; description: string; tags: string[] }) => void;
@@ -34,6 +35,10 @@ export default function AiStudioPage({ onNavigateToUpload }: AiStudioPageProps) 
   const [resolution, setResolution] = useState<'720p' | '1080p'>('1080p');
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<'video' | 'images'>('video');
+  
+  // State for generated video output
+  const [generatedVideo, setGeneratedVideo] = useState<GeneratedVideo | null>(null);
+  const [generatedVideoMetadata, setGeneratedVideoMetadata] = useState<{ title: string; description: string; tags: string[] } | null>(null);
 
   const isAuthenticated = !!identity;
 
@@ -110,14 +115,48 @@ export default function AiStudioPage({ onNavigateToUpload }: AiStudioPageProps) 
         tags: ['AI Generated', 'MeTube AI Studios', 'Quote'],
       };
 
+      // Store generated video and metadata for download/delete actions
+      setGeneratedVideo(video);
+      setGeneratedVideoMetadata(metadata);
+
       toast.success('Video generated successfully!');
-      onNavigateToUpload(video, metadata);
     } catch (error: any) {
       console.error('Generation error:', error);
       toast.error(error.message || 'Failed to generate video');
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleDownloadVideo = () => {
+    if (!generatedVideo) return;
+
+    try {
+      const filename = generateFilenameWithTimestamp('metube-ai-video', 'webm');
+      downloadBlob(generatedVideo.file, filename);
+      toast.success('Video downloaded successfully');
+    } catch (error: any) {
+      toast.error('Failed to download video');
+    }
+  };
+
+  const handleDeleteVideo = () => {
+    if (!generatedVideo) return;
+
+    // Revoke object URL to free memory
+    if (generatedVideo.previewUrl) {
+      URL.revokeObjectURL(generatedVideo.previewUrl);
+    }
+
+    // Clear generated video state
+    setGeneratedVideo(null);
+    setGeneratedVideoMetadata(null);
+    toast.success('Generated video cleared');
+  };
+
+  const handleUploadVideo = () => {
+    if (!generatedVideo || !generatedVideoMetadata) return;
+    onNavigateToUpload(generatedVideo, generatedVideoMetadata);
   };
 
   const handleUpgrade = async () => {
@@ -323,6 +362,42 @@ export default function AiStudioPage({ onNavigateToUpload }: AiStudioPageProps) 
               </Button>
             </CardContent>
           </Card>
+
+          {generatedVideo && generatedVideoMetadata && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Generated Video</CardTitle>
+                <CardDescription>
+                  Your video is ready! Download it or upload to your channel.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="border rounded-lg overflow-hidden bg-black">
+                  <video
+                    src={generatedVideo.previewUrl}
+                    controls
+                    className="w-full"
+                    style={{ maxHeight: '400px' }}
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button onClick={handleDownloadVideo} variant="outline">
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+                  <Button onClick={handleDeleteVideo} variant="outline">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
+                  <Button onClick={handleUploadVideo} variant="default">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Upload to Channel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="images">

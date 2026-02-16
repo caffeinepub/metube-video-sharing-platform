@@ -412,92 +412,6 @@ export function useGetViewCount(videoId: VideoId | null) {
   });
 }
 
-// Video Metadata Editing
-export function useUpdateVideoMetadata() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      videoId,
-      newTitle,
-      newDescription,
-    }: {
-      videoId: VideoId;
-      newTitle: string;
-      newDescription: string;
-    }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updateVideoMetadata(videoId, newTitle, newDescription);
-    },
-    onSuccess: (_, { videoId }) => {
-      queryClient.invalidateQueries({ queryKey: ['video', videoId.toString()] });
-      queryClient.invalidateQueries({ queryKey: ['videos'] });
-      queryClient.invalidateQueries({ queryKey: ['userVideos'] });
-      toast.success('Video details updated successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to update video: ${error.message}`);
-    },
-  });
-}
-
-// Thumbnail Management
-export function useUpdateThumbnail() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      videoId,
-      newThumbnail,
-    }: {
-      videoId: VideoId;
-      newThumbnail: ExternalBlob;
-    }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updateThumbnail(videoId, newThumbnail);
-    },
-    onSuccess: (_, { videoId }) => {
-      queryClient.invalidateQueries({ queryKey: ['video', videoId.toString()] });
-      queryClient.invalidateQueries({ queryKey: ['videos'] });
-      queryClient.invalidateQueries({ queryKey: ['userVideos'] });
-      toast.success('Thumbnail updated successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to update thumbnail: ${error.message}`);
-    },
-  });
-}
-
-// Tags Management
-export function useUpdateTags() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      videoId,
-      newTags,
-    }: {
-      videoId: VideoId;
-      newTags: string[];
-    }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updateTags(videoId, newTags);
-    },
-    onSuccess: (_, { videoId }) => {
-      queryClient.invalidateQueries({ queryKey: ['video', videoId.toString()] });
-      queryClient.invalidateQueries({ queryKey: ['videos'] });
-      queryClient.invalidateQueries({ queryKey: ['userVideos'] });
-      toast.success('Tags updated successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to update tags: ${error.message}`);
-    },
-  });
-}
-
 // Like Video
 export function useLikeVideo() {
   const { actor } = useActor();
@@ -511,6 +425,7 @@ export function useLikeVideo() {
     onSuccess: (_, videoId) => {
       queryClient.invalidateQueries({ queryKey: ['video', videoId.toString()] });
       queryClient.invalidateQueries({ queryKey: ['videos'] });
+      queryClient.invalidateQueries({ queryKey: ['userVideos'] });
       toast.success('Video liked!');
     },
     onError: (error: Error) => {
@@ -627,6 +542,7 @@ export function useGetChannel(ownerPrincipal: string | null) {
 export function useCreateChannel() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
 
   return useMutation({
     mutationFn: async ({ channelName, description }: { channelName: string; description: string }) => {
@@ -634,7 +550,9 @@ export function useCreateChannel() {
       return actor.createChannel(channelName, description);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['channel'] });
+      if (identity) {
+        queryClient.invalidateQueries({ queryKey: ['channel', identity.getPrincipal().toString()] });
+      }
       toast.success('Channel created successfully!');
     },
     onError: (error: Error) => {
@@ -646,6 +564,7 @@ export function useCreateChannel() {
 export function useUpdateChannelAbout() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
 
   return useMutation({
     mutationFn: async ({ channelName, newAbout }: { channelName: string; newAbout: string }) => {
@@ -653,7 +572,9 @@ export function useUpdateChannelAbout() {
       return actor.updateChannelAbout(channelName, newAbout);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['channel'] });
+      if (identity) {
+        queryClient.invalidateQueries({ queryKey: ['channel', identity.getPrincipal().toString()] });
+      }
       toast.success('Channel updated successfully!');
     },
     onError: (error: Error) => {
@@ -692,6 +613,7 @@ export function useGetPlaylist(playlistId: PlaylistId | null) {
 export function useCreatePlaylist() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
 
   return useMutation({
     mutationFn: async ({ name, isPrivate }: { name: string; isPrivate: boolean }) => {
@@ -699,7 +621,9 @@ export function useCreatePlaylist() {
       return actor.createPlaylist(name, isPrivate);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userPlaylists'] });
+      if (identity) {
+        queryClient.invalidateQueries({ queryKey: ['userPlaylists', identity.getPrincipal().toString()] });
+      }
       toast.success('Playlist created!');
     },
     onError: (error: Error) => {
@@ -719,11 +643,10 @@ export function useAddVideoToPlaylist() {
     },
     onSuccess: (_, { playlistId }) => {
       queryClient.invalidateQueries({ queryKey: ['playlist', playlistId.toString()] });
-      queryClient.invalidateQueries({ queryKey: ['userPlaylists'] });
       toast.success('Video added to playlist!');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to add video: ${error.message}`);
+      toast.error(`Failed to add video to playlist: ${error.message}`);
     },
   });
 }
@@ -739,11 +662,10 @@ export function useRemoveVideoFromPlaylist() {
     },
     onSuccess: (_, { playlistId }) => {
       queryClient.invalidateQueries({ queryKey: ['playlist', playlistId.toString()] });
-      queryClient.invalidateQueries({ queryKey: ['userPlaylists'] });
-      toast.success('Video removed from playlist!');
+      toast.success('Video removed from playlist');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to remove video: ${error.message}`);
+      toast.error(`Failed to remove video from playlist: ${error.message}`);
     },
   });
 }
@@ -785,9 +707,9 @@ export function useVerifyAndGrantVideoPurchase() {
       if (!actor) throw new Error('Actor not available');
       return actor.verifyAndGrantVideoPurchase(sessionId, videoId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['videoPurchaseEntitlement'] });
-      toast.success('Video purchase verified!');
+    onSuccess: (_, { videoId }) => {
+      queryClient.invalidateQueries({ queryKey: ['videoPurchaseEntitlement', videoId.toString()] });
+      toast.success('Purchase verified! You can now download the video.');
     },
     onError: (error: Error) => {
       toast.error(`Verification failed: ${error.message}`);
@@ -808,7 +730,79 @@ export function useHasVideoPurchaseEntitlement(videoId: VideoId | null) {
   });
 }
 
-// Chat Queries
+// Video Metadata Editing
+export function useUpdateVideoMetadata() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      videoId,
+      newTitle,
+      newDescription,
+    }: {
+      videoId: VideoId;
+      newTitle: string;
+      newDescription: string;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateVideoMetadata(videoId, newTitle, newDescription);
+    },
+    onSuccess: (_, { videoId }) => {
+      queryClient.invalidateQueries({ queryKey: ['video', videoId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['videos'] });
+      queryClient.invalidateQueries({ queryKey: ['userVideos'] });
+      toast.success('Video metadata updated!');
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update video metadata: ${error.message}`);
+    },
+  });
+}
+
+export function useUpdateThumbnail() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ videoId, newThumbnail }: { videoId: VideoId; newThumbnail: ExternalBlob }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateThumbnail(videoId, newThumbnail);
+    },
+    onSuccess: (_, { videoId }) => {
+      queryClient.invalidateQueries({ queryKey: ['video', videoId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['videos'] });
+      queryClient.invalidateQueries({ queryKey: ['userVideos'] });
+      toast.success('Thumbnail updated!');
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update thumbnail: ${error.message}`);
+    },
+  });
+}
+
+export function useUpdateTags() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ videoId, newTags }: { videoId: VideoId; newTags: string[] }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateTags(videoId, newTags);
+    },
+    onSuccess: (_, { videoId }) => {
+      queryClient.invalidateQueries({ queryKey: ['video', videoId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['videos'] });
+      queryClient.invalidateQueries({ queryKey: ['userVideos'] });
+      toast.success('Tags updated!');
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update tags: ${error.message}`);
+    },
+  });
+}
+
+// Chat functionality
 export function useGetLatestMessages() {
   const { actor, isFetching } = useActor();
 
@@ -816,10 +810,10 @@ export function useGetLatestMessages() {
     queryKey: ['latestMessages'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getLatestMessages(BigInt(50));
+      return actor.getLatestMessages(BigInt(100));
     },
     enabled: !!actor && !isFetching,
-    refetchInterval: 3000,
+    refetchInterval: 3000, // Poll every 3 seconds
   });
 }
 
@@ -836,7 +830,8 @@ export function usePostMessage() {
       queryClient.invalidateQueries({ queryKey: ['latestMessages'] });
     },
     onError: (error: Error) => {
-      toast.error(`Failed to send message: ${error.message}`);
+      // Surface the backend error message to the user
+      toast.error(error.message);
     },
   });
 }

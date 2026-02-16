@@ -1,20 +1,71 @@
 // Client-side AI-like image generation using Canvas
 // Supports multiple style variants with deterministic rendering
 
-export type ImageStyle = 'poster' | 'gradient' | 'minimal' | 'vibrant';
+export type ImageStyle = 'poster' | 'gradient' | 'minimal' | 'vibrant' | 'portrait';
+export type SubjectGender = 'auto' | 'neutral' | 'woman' | 'man';
 
 export interface GenerateImageOptions {
   prompt: string;
   style: ImageStyle;
+  subjectGender?: SubjectGender;
   width?: number;
   height?: number;
   onProgress?: (percentage: number) => void;
+}
+
+// Sexual keywords that should be ignored for gender inference
+const SEXUAL_KEYWORDS = [
+  'sex',
+  'porn',
+  'cock',
+  'sexy',
+  'genital',
+  'pussy',
+  'penis',
+  'vagina',
+  'anal',
+  'nude',
+  'naked',
+  'fuck',
+  'fucking',
+  'fucked',
+  'dick',
+];
+
+// Gendered terms for Auto inference
+const WOMAN_TERMS = ['woman', 'women', 'girl', 'girls', 'female', 'lady', 'ladies', 'she', 'her'];
+const MAN_TERMS = ['man', 'men', 'boy', 'boys', 'male', 'gentleman', 'gentlemen', 'he', 'him', 'his'];
+
+/**
+ * Infers gender from prompt based on gendered terms only (ignores sexual keywords)
+ * Returns 'neutral' if no gendered terms found or only sexual keywords present
+ */
+function inferGenderFromPrompt(prompt: string): 'neutral' | 'woman' | 'man' {
+  const lowerPrompt = prompt.toLowerCase();
+  
+  // Remove sexual keywords from consideration
+  let cleanedPrompt = lowerPrompt;
+  for (const keyword of SEXUAL_KEYWORDS) {
+    cleanedPrompt = cleanedPrompt.replace(new RegExp(`\\b${keyword}\\b`, 'gi'), '');
+  }
+  
+  // Check for gendered terms in cleaned prompt
+  const hasWomanTerms = WOMAN_TERMS.some(term => cleanedPrompt.includes(term));
+  const hasManTerms = MAN_TERMS.some(term => cleanedPrompt.includes(term));
+  
+  // If both or neither, default to neutral
+  if (hasWomanTerms && hasManTerms) return 'neutral';
+  if (hasWomanTerms) return 'woman';
+  if (hasManTerms) return 'man';
+  
+  return 'neutral';
 }
 
 export async function generateImage(options: GenerateImageOptions): Promise<string> {
   const {
     prompt,
     style,
+    subjectGender = 'auto',
     width = 1024,
     height = 1024,
     onProgress,
@@ -34,6 +85,14 @@ export async function generateImage(options: GenerateImageOptions): Promise<stri
 
   if (onProgress) onProgress(30);
 
+  // Determine effective gender for rendering
+  let effectiveGender: 'neutral' | 'woman' | 'man';
+  if (subjectGender === 'auto') {
+    effectiveGender = inferGenderFromPrompt(prompt);
+  } else {
+    effectiveGender = subjectGender;
+  }
+
   // Generate deterministic colors from prompt
   const hash = hashString(prompt);
   const hue1 = (hash % 360);
@@ -44,6 +103,9 @@ export async function generateImage(options: GenerateImageOptions): Promise<stri
 
   // Render based on style
   switch (style) {
+    case 'portrait':
+      renderPortraitStyle(ctx, width, height, prompt, hue1, hue2, effectiveGender);
+      break;
     case 'poster':
       renderPosterStyle(ctx, width, height, prompt, hue1, hue2);
       break;
@@ -76,6 +138,103 @@ function hashString(str: string): number {
     hash = hash & hash;
   }
   return Math.abs(hash);
+}
+
+function renderPortraitStyle(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  prompt: string,
+  hue1: number,
+  hue2: number,
+  gender: 'neutral' | 'woman' | 'man'
+) {
+  // Background gradient
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, `hsl(${hue1}, 60%, 85%)`);
+  gradient.addColorStop(1, `hsl(${hue2}, 50%, 75%)`);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // Draw portrait silhouette based on gender
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const scale = Math.min(width, height) / 3;
+
+  ctx.fillStyle = `hsl(${hue1}, 40%, 40%)`;
+  
+  // Head (circle)
+  ctx.beginPath();
+  ctx.arc(centerX, centerY - scale * 0.4, scale * 0.35, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Body/shoulders
+  ctx.beginPath();
+  ctx.moveTo(centerX, centerY + scale * 0.1);
+  
+  if (gender === 'woman') {
+    // Woman silhouette - longer hair, curved shoulders
+    // Hair
+    ctx.beginPath();
+    ctx.ellipse(centerX, centerY - scale * 0.4, scale * 0.45, scale * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Shoulders with curves
+    ctx.beginPath();
+    ctx.moveTo(centerX - scale * 0.6, centerY + scale * 0.3);
+    ctx.quadraticCurveTo(centerX - scale * 0.4, centerY + scale * 0.1, centerX, centerY + scale * 0.15);
+    ctx.quadraticCurveTo(centerX + scale * 0.4, centerY + scale * 0.1, centerX + scale * 0.6, centerY + scale * 0.3);
+    ctx.lineTo(centerX + scale * 0.6, centerY + scale * 0.8);
+    ctx.lineTo(centerX - scale * 0.6, centerY + scale * 0.8);
+    ctx.closePath();
+    ctx.fill();
+  } else if (gender === 'man') {
+    // Man silhouette - short hair, broader shoulders
+    // Short hair
+    ctx.beginPath();
+    ctx.arc(centerX, centerY - scale * 0.4, scale * 0.38, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Broader shoulders
+    ctx.beginPath();
+    ctx.moveTo(centerX - scale * 0.7, centerY + scale * 0.3);
+    ctx.lineTo(centerX - scale * 0.5, centerY + scale * 0.1);
+    ctx.lineTo(centerX, centerY + scale * 0.15);
+    ctx.lineTo(centerX + scale * 0.5, centerY + scale * 0.1);
+    ctx.lineTo(centerX + scale * 0.7, centerY + scale * 0.3);
+    ctx.lineTo(centerX + scale * 0.7, centerY + scale * 0.8);
+    ctx.lineTo(centerX - scale * 0.7, centerY + scale * 0.8);
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    // Neutral silhouette - simple geometric shape
+    // Simple head
+    ctx.beginPath();
+    ctx.arc(centerX, centerY - scale * 0.4, scale * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Simple body
+    ctx.beginPath();
+    ctx.moveTo(centerX - scale * 0.5, centerY + scale * 0.2);
+    ctx.lineTo(centerX - scale * 0.5, centerY + scale * 0.8);
+    ctx.lineTo(centerX + scale * 0.5, centerY + scale * 0.8);
+    ctx.lineTo(centerX + scale * 0.5, centerY + scale * 0.2);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Decorative frame
+  ctx.strokeStyle = `hsl(${hue2}, 60%, 50%)`;
+  ctx.lineWidth = 8;
+  ctx.strokeRect(width * 0.1, height * 0.1, width * 0.8, height * 0.8);
+
+  // Text at bottom
+  ctx.fillStyle = `hsl(${hue1}, 50%, 30%)`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const fontSize = Math.min(width, height) / 20;
+  ctx.font = `bold ${fontSize}px sans-serif`;
+  ctx.fillText(prompt.substring(0, 50), width / 2, height * 0.92);
 }
 
 function renderPosterStyle(

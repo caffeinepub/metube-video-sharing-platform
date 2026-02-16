@@ -1,68 +1,77 @@
 {
   "kind": "build_request",
-  "title": "Allow AI generation prompts that contain adult/sexual words",
+  "title": "Add a clearer in-app “Install App” entry point for the metube.xyz PWA (with iOS fallback instructions)",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-49",
-      "text": "Remove the current keyword-based content policy block that prevents AI video generation when the user’s prompt contains adult/sexual terms (e.g., the word \"sex\"), so that videos can still be generated.",
+      "id": "REQ-67",
+      "text": "Add a clearly visible in-app “Install App” button entry point that complements the existing PWA install banner, so mobile users can intentionally trigger installation from within the UI.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4",
+          "msg-6"
         ],
         "quotes": [
-          "Change that when I adult word if I seea sex the it well generated videos and images"
+          "If you want, I can also add a simple “Install App” button inside the UI to make it even clearer for mobile users.",
+          "Yes"
         ]
       },
       "acceptanceCriteria": [
-        "In MeTube AI Studios > Video Generation, entering a prompt that contains the word \"sex\" does not block generation and does not show the current prohibited-content error toast.",
-        "Video generation proceeds normally (subject to authentication and remaining generation time limits) even if the prompt contains previously-blocked keywords."
+        "When the app is not installed and installation is available, the UI shows an “Install App” action in a discoverable location (e.g., header overflow/menu, sidebar, or footer).",
+        "Clicking “Install App” triggers the native install prompt on browsers that support `beforeinstallprompt`.",
+        "The “Install App” action is hidden/disabled when the app is already installed (standalone display mode).",
+        "All user-facing text is in English and uses the metube.xyz name."
       ]
     },
     {
-      "id": "REQ-50",
-      "text": "Update any AI Studio user-facing content policy UI/copy that currently states porn/explicit content is prohibited and will be rejected, so that it no longer claims generation will be blocked by keyword detection.",
+      "id": "REQ-68",
+      "text": "Implement an iOS/Safari-friendly fallback for installation where the native install prompt is not available: show an in-app modal (or equivalent) with step-by-step English instructions to add metube.xyz to the home screen.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-3",
+          "msg-4"
         ],
         "quotes": [
-          "Change that when I adult word if I seea sex the it well generated videos and images"
+          "You can install it by adding metube.xyz to your home screen, because the site now works as a full PWA.",
+          "If you want, I can also add a simple “Install App” button inside the UI to make it even clearer for mobile users."
         ]
       },
       "acceptanceCriteria": [
-        "The Video Generation card no longer displays messaging that says prompts will be rejected due to banned keywords.",
-        "All updated user-facing text is in English."
+        "On platforms where `beforeinstallprompt` is not available but the app is not installed, clicking “Install App” shows an instruction UI rather than doing nothing.",
+        "The instruction UI includes clear steps (e.g., “Open the Share menu” → “Tap ‘Add to Home Screen’”).",
+        "The instruction UI can be dismissed and does not block normal navigation."
       ]
     },
     {
-      "id": "REQ-51",
-      "text": "Update the local content policy utility so it no longer represents a hard-blocking rule for adult/sexual keywords (e.g., do not expose or use a function that treats \"sex\" and similar words as prohibited terms for AI generation).",
+      "id": "REQ-69",
+      "text": "Ensure the existing PWA install banner and the new “Install App” entry point do not conflict: avoid showing redundant prompts at the same time and ensure dismissing one does not break the other.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-6"
         ],
         "quotes": [
-          "Change that when I adult word if I seea sex the it well generated videos and images"
+          "Yes"
         ]
       },
       "acceptanceCriteria": [
-        "The app no longer uses the existing blocked-keywords list to prevent AI generation based on adult/sexual terms.",
-        "No runtime errors occur from removing/adjusting the content policy helper usage in MeTube AI Studios."
+        "If the user dismisses the install banner, the separate “Install App” entry point still works.",
+        "If the user installs the app successfully, both the banner and the “Install App” entry point stop appearing without requiring a refresh.",
+        "No console errors occur when interacting with either install surface."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/components/ui (Shadcn UI components are read-only).",
-    "Keep AI image/video generation fully client-side (no external AI services)."
+    "Frontend files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, and frontend/src/components/ui must not be edited (compose instead).",
+    "Keep the existing PWA infrastructure (manifest, service worker, offline page) intact; only add/adjust UI entry points and related client-side logic as needed.",
+    "Use English for all user-facing text."
   ],
   "nonGoals": [
-    "Adding a kids-only mode or age-gating flow.",
-    "Adding external moderation services or third-party content filtering APIs.",
-    "Changing AI generation tier limits, Stripe payment flows, or authentication requirements."
+    "Do not add Google sign-in or any third-party authentication; keep Internet Identity as the only auth method.",
+    "Do not implement native mobile apps (iOS/Android); this work is strictly for the existing PWA.",
+    "Do not change backend logic or introduce new backend APIs for installation."
   ],
   "imageRequirements": {
     "required": [],

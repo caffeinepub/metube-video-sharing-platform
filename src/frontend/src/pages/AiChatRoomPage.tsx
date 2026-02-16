@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Send, Bot, User } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { MessageSquare, Send, Bot, User, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { validateChatMessage } from '../utils/chatModeration';
 
 export default function AiChatRoomPage() {
   const { identity } = useInternetIdentity();
@@ -32,6 +34,13 @@ export default function AiChatRoomPage() {
 
     if (!isAuthenticated || !userProfile) {
       toast.error('Please log in to send messages');
+      return;
+    }
+
+    // Client-side validation before making network call
+    const validation = validateChatMessage(messageInput.trim());
+    if (!validation.allowed) {
+      toast.error(validation.error);
       return;
     }
 
@@ -84,6 +93,12 @@ export default function AiChatRoomPage() {
               {messages?.length || 0} messages
             </Badge>
           </div>
+          <Alert className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Please keep conversations respectful. Sexually explicit content is not allowed in the chat room.
+            </AlertDescription>
+          </Alert>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col space-y-4 overflow-hidden">
           {/* Messages Area */}

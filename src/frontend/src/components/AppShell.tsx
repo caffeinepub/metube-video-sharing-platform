@@ -1,6 +1,7 @@
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
+import PwaInstallBanner from './PwaInstallBanner';
 import type { Page } from '../App';
 
 interface AppShellProps {
@@ -41,7 +42,7 @@ export default function AppShell({
   onSidebarToggle,
 }: AppShellProps) {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen safe-area-inset">
       <Header
         currentPage={currentPage}
         onNavigateHome={onNavigateHome}
@@ -66,11 +67,12 @@ export default function AppShell({
           isOpen={sidebarOpen}
           onClose={onSidebarToggle}
         />
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto pb-safe">
           {children}
         </main>
       </div>
       <Footer onNavigateToYouTubeMe={onNavigateToYouTubeMe} />
+      <PwaInstallBanner />
     </div>
   );
 }
